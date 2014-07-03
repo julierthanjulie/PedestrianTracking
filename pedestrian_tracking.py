@@ -9,36 +9,6 @@ http://juliericowilliamson.com/blog/wp-content/uploads/2014/05/Williamson-small.
 Williamson, J.R. and Williamson, J.  Analysing Pedestrian Traffic Around Public Displays.  
 In the Proceedings of Pervasive Displays 2014.  ACM, New York, USA.
 
-The MIT License (MIT)
-
-Copyright (c) 2014  Julie R. Williamson and John Williamson
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-USAGE:
-
--v --  A video file to generate pedestrian trails.  This code is optimised for MJPEG videos in an AVI container.
--b --  A background image (matching the size of the video) to draw the trails onto.
-
-Example:  python pedestrian_tracking.py -v MyVideo.avi -b MyBackground.png
-
-This will run the pedestrian tracker by detecting pedestrian in MyVideo.avi and drawing trails on top of MyBackground.png as the background.
 """
 
 #  Please ensure the following dependencies are installed before use:
@@ -50,7 +20,7 @@ import time
 
 #  The frame is used to detect pedestrians entering the frame of view, and to remove noise.
 #  Blobs detected within the frame are treated differently than those outside the frame.
-FRAME_WIDTH = 20
+FRAME_WIDTH = 30
 
 
 #  Show a video preview during vision processing
@@ -58,6 +28,9 @@ draw_video = True
 
 #  Outputs all traces from this script as a CSV file
 def write_traces(traces, file_name):
+	"""
+	This function writes CSV data for each trace in the format PedestrianID , X, Y, FrameNumber;
+	"""
 
 	trace_f = open(file_name + "_traces.csv", "w")
 	for id in traces:
@@ -76,7 +49,7 @@ def show_video(argv):
 	tracker = blobs.BlobTracker()
 	
 
-	video = "/Users/julierwilliamson/Dropbox/ShortTest2.mov"
+	video = "demo.avi"
 	background = "/Users/julierwilliamson/Dropbox/ocv_python/alpha001.png"
 	output =  "blob"
 	method = "acc"
@@ -103,7 +76,7 @@ def show_video(argv):
 	
 	print video , " " , background , " " , output
 	
-	file_name_base = video.split("/")[-1].split(".")[-2]
+	file_name_base = "results/" + video.split("/")[-1].split(".")[-2]
 		
 	c = cv2.VideoCapture(video)
 	
@@ -133,11 +106,15 @@ def show_video(argv):
 	
 	#writer = cv2.VideoWriter(output, 0,  fps, (width, height)) 
 	
-	for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(10,20))
-	for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(10,30))
-	#for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,10))
-	
-	#for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,10))
+	# Celtic Connection Errosion/Dilation
+	# for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,20))
+	# for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,40))
+
+
+	for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,10))	
+	for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,20))
+
+
 	orange = np.dstack(((np.zeros((height, width)),np.ones((height, width))*128,np.ones((height,width))*255)))
 	ones = np.ones((height, width, 3))
 	
@@ -200,7 +177,7 @@ def show_video(argv):
 		
 		
 		#cv2.imshow("Dilated", im_dl)
-		print "Showing Erosion"
+
 		cv2.imshow("Eroded", im_er)
 		
 		#time.sleep(10000)

@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>generate_frames &mdash; Pedestrian Tracking 1.2 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Pedestrian Tracking 1.2 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Pedestrian Tracking 1.2 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for generate_frames</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd"> This code generates frames from CSV values that can be stiched together using FFMPEG </span>
+<span class="sd"> to animate pedestrian data.  This version produces an animation at 4x speed.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="k">print</span> <span class="s">&quot;Importing...&quot;</span>
+
+<span class="c">#  Please ensure the following dependencies are installed before use:</span>
+<span class="kn">import</span> <span class="nn">pylab</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">getopt</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+
+
+<span class="n">drawing_by_frame</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<span class="c">#  </span>
+<span class="k">def</span> <span class="nf">generate_frames</span><span class="p">(</span><span class="n">argv</span><span class="p">):</span>
+<div class="viewcode-block" id="generate_frames"><a class="viewcode-back" href="../generate_frames.html#generate_frames.generate_frames">[docs]</a>	
+	
+	<span class="c">#  Some default values if nothing is provided in command line arguments.</span>
+	<span class="n">traces</span> <span class="o">=</span> <span class="s">&#39;bubble_pop_traces.csv&#39;</span>
+	<span class="n">background</span> <span class="o">=</span> <span class="s">&#39;trails_480.png&#39;</span>
+	
+	<span class="c">#  Get command line arguments.</span>
+	<span class="c">#  -f specify a file name.  This code expects csv files in the format PedestrianID, X, Y, FrameNum</span>
+	<span class="c">#  -b specify a backgroun image.  Any format available to pylab is acceptable.	</span>
+	<span class="k">try</span><span class="p">:</span>
+		<span class="n">opts</span><span class="p">,</span><span class="n">args</span> <span class="o">=</span> <span class="n">getopt</span><span class="o">.</span><span class="n">getopt</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="s">&quot;f:b:&quot;</span><span class="p">)</span>
+	<span class="k">except</span> <span class="n">getopt</span><span class="o">.</span><span class="n">GetoptError</span><span class="p">:</span>
+		<span class="k">print</span> <span class="s">&quot;Getopt Error&quot;</span>
+		<span class="nb">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+	
+	<span class="k">for</span> <span class="n">opt</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">opts</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">opt</span> <span class="o">==</span> <span class="s">&quot;-f&quot;</span><span class="p">:</span>
+			<span class="n">traces</span> <span class="o">=</span> <span class="n">arg</span>
+		<span class="k">elif</span> <span class="n">opt</span> <span class="o">==</span> <span class="s">&quot;-b&quot;</span><span class="p">:</span>
+			<span class="n">background</span> <span class="o">=</span> <span class="n">arg</span>
+
+	<span class="c">#  Name each frame based on the filename		</span>
+	<span class="n">figure_name</span> <span class="o">=</span> <span class="n">traces</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+
+	<span class="c">#  Load up csv file</span>
+	<span class="n">trace</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">traces</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+	<span class="n">traces</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+	
+	<span class="c">#  These values should match those in pedestrian_tracking.py</span>
+	<span class="n">w</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="mi">640</span><span class="p">,</span><span class="mi">360</span>
+	<span class="n">border</span><span class="o">=</span><span class="mi">20</span>
+
+	<span class="c">#  Some values from trail validation</span>
+	<span class="n">valid</span> <span class="o">=</span> <span class="mi">0</span>
+	<span class="n">avg_length</span> <span class="o">=</span> <span class="mi">0</span>
+	<span class="n">num_traces</span> <span class="o">=</span> <span class="mi">0</span>
+
+	<span class="c">#  Load up background image.</span>
+	<span class="n">background</span> <span class="o">=</span> <span class="n">pylab</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">background</span><span class="p">)</span>
+
+
+	<span class="n">pylab</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">background</span><span class="p">)</span>
+	
+
+	<span class="k">for</span> <span class="nb">id</span><span class="p">,</span><span class="n">t</span> <span class="ow">in</span> <span class="n">traces</span><span class="p">:</span>
+		<span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+		<span class="n">invalid</span> <span class="o">=</span> <span class="bp">False</span>
+	
+		<span class="c">#  Validate Trails</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;</span><span class="n">border</span> <span class="ow">and</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;</span><span class="n">w</span><span class="o">-</span><span class="n">border</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">border</span> <span class="ow">and</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;</span><span class="n">h</span><span class="o">-</span><span class="n">border</span><span class="p">):</span>
+			<span class="n">invalid</span> <span class="o">=</span> <span class="bp">True</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;</span><span class="n">border</span> <span class="ow">and</span> <span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;</span><span class="n">w</span><span class="o">-</span><span class="n">border</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">border</span> <span class="ow">and</span> <span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;</span><span class="n">h</span><span class="o">-</span><span class="n">border</span><span class="p">):</span>
+			<span class="n">invalid</span> <span class="o">=</span> <span class="bp">True</span>
+		
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">200</span><span class="p">:</span>
+			<span class="n">invalid</span> <span class="o">=</span> <span class="bp">True</span>
+			
+		<span class="k">if</span> <span class="p">((</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">h</span><span class="o">-</span><span class="n">border</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">w</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="mi">75</span> <span class="ow">and</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">w</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="mi">75</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">h</span><span class="o">-</span><span class="n">border</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">w</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="mi">75</span> <span class="ow">and</span> <span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">w</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="mi">75</span><span class="p">)):</span>
+			<span class="n">invalid</span> <span class="o">=</span> <span class="bp">True</span>
+
+		
+		<span class="c">#  For all valid trails, prepare them for generating animated trails by frame number	</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">invalid</span><span class="p">:</span>
+					
+			<span class="n">num_traces</span> <span class="o">+=</span> <span class="mi">1</span>
+			<span class="n">avg_length</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
+			
+			<span class="c">#  Drawing colour for traces given as RGB</span>
+			<span class="n">colour</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+	
+	
+			<span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">:</span>
+				<span class="n">this_frame</span> <span class="o">=</span> <span class="p">[</span><span class="n">pt</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pt</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>				
+				<span class="n">drawing_by_frame</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_frame</span><span class="p">)</span>
+					
+			<span class="n">valid</span> <span class="o">+=</span> <span class="mi">1</span>
+			
+			<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">pts</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="mi">0</span><span class="p">,</span><span class="n">w</span><span class="p">)</span>
+			<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">pts</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span><span class="mi">0</span><span class="p">,</span><span class="n">h</span><span class="p">)</span>
+		
+			
+		
+	<span class="k">print</span> <span class="s">&quot;Valid Trails: &quot;</span> <span class="p">,</span> <span class="n">valid</span><span class="p">,</span> <span class="s">&quot; Average Length:&quot;</span> <span class="p">,</span> <span class="n">avg_length</span><span class="o">/</span><span class="n">num_traces</span>
+	
+	
+	<span class="n">drawing_by_frame</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>	
+	
+	<span class="n">last_frame</span> <span class="o">=</span> <span class="n">drawing_by_frame</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+	
+	<span class="n">current_frame</span> <span class="o">=</span> <span class="n">drawing_by_frame</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+	
+	<span class="n">drawing_dict</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+	<span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+	
+	<span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">drawing_by_frame</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+	
+		<span class="c">#print &quot;Next Frame, &quot; , current_frame</span>
+		<span class="n">pylab</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">background</span><span class="p">)</span>
+		
+		<span class="k">while</span> <span class="n">drawing_by_frame</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">current_frame</span><span class="p">:</span>
+			<span class="n">list_one</span> <span class="o">=</span> <span class="n">drawing_by_frame</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+			
+			<span class="n">x</span> <span class="o">=</span> <span class="n">drawing_dict</span><span class="p">[</span><span class="n">list_one</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>
+			<span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">list_one</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">list_one</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+			<span class="n">drawing_dict</span><span class="p">[</span><span class="n">list_one</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span> <span class="o">=</span> <span class="n">x</span>
+			
+		<span class="c">#  Adjust mod value here to adjust frame drawing frequency</span>
+		<span class="c">#  Draw stuff here</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">current_frame</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span><span class="mi">0</span><span class="p">):</span>
+			<span class="k">print</span> <span class="s">&quot;Percentage Complete: &quot;</span> <span class="p">,</span> <span class="p">(</span><span class="n">current_frame</span><span class="o">/</span><span class="n">last_frame</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span>
+			<span class="n">draw_dict</span><span class="p">(</span><span class="n">drawing_dict</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">figure_name</span><span class="p">,</span> <span class="n">current_frame</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+
+			<span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+		
+		<span class="n">pylab</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+		<span class="n">current_frame</span> <span class="o">=</span> <span class="n">drawing_by_frame</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">draw_dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">figure_name</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span></div>
+<div class="viewcode-block" id="draw_dict"><a class="viewcode-back" href="../generate_frames.html#generate_frames.draw_dict">[docs]</a>	<span class="k">for</span> <span class="n">trace</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">:</span>
+		
+		<span class="k">print</span> <span class="n">trace</span>
+		<span class="n">pts</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="n">trace</span><span class="p">]</span>
+	
+		<span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">],</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">],</span><span class="s">&#39;-&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>	
+		<span class="n">pylab</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">w</span><span class="p">)</span>
+		<span class="n">pylab</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+		<span class="n">pylab</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s">&#39;off&#39;</span><span class="p">)</span>
+		<span class="n">pylab</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+	<span class="n">pylab</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&quot;Frames/&quot;</span> <span class="o">+</span> <span class="n">figure_name</span> <span class="o">+</span> <span class="s">&quot;_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span><span class="n">bbox_inches</span><span class="o">=</span><span class="s">&#39;tight&#39;</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>	
+	<span class="c">#pylab.savefig(&quot;Frames/&quot; + &#39;frame&#39; + str(int(frame)) + &#39;.png&#39;, dpi=150,bbox_inches=&#39;tight&#39;, pad_inches=0)	</span>
+				
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span></div>
+
+	<span class="k">print</span> <span class="s">&quot;Starting Frame Generation&quot;</span>
+	<span class="n">generate_frames</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Pedestrian Tracking 1.2 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Julie R. Williamson and John Williamson.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

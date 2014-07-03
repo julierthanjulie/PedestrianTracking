@@ -4,10 +4,13 @@ import munkres
 
 BLOB_LIFE = 25
 EDGE_THRESHOLD = 20
-DISTANCE_THRESHOLD = 30 
+DISTANCE_THRESHOLD = 50 
 blob_id = 0
 
-MOVE_LIMIT = 5
+# Celtic Connections
+# MOVE_LIMIT = 50
+
+MOVE_LIMIT = 7
 
 MATCH_DISTANCE = 50
 
@@ -37,9 +40,7 @@ class VirtualBlob:
 		self.x = x
 		self.y = y
 		
-	def move(self):
-		
-			
+	def move(self):			
 		
 		if abs(self.dx) < MOVE_LIMIT and abs(self.dy) < MOVE_LIMIT:
 			#print "Moving: " , self.dx , " " , self.dy	

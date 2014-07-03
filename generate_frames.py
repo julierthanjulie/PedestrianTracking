@@ -1,38 +1,8 @@
-#  This code generates frames from CSV values that can be stiched together using FFMPEG 
-#  to animate pedestrian data.  This version produces an animation at 4x speed.
 
-#  This code is authored by Julie R. Williamson and John Williamson.
-#  Julie.Williamson@glasgow.ac.uk, JohnH.Williamson@glasgow.ac.uk
-
-#  If using this code or the associated materials, please cite this source.
-#  The original publication is available at:
-#  http://juliericowilliamson.com/blog/wp-content/uploads/2014/05/Williamson-small.pdf
-
-#  Williamson, J.R. and Williamson, J.  Analysing Pedestrian Traffic Around Public Displays.  
-#  In the Proceedings of Pervasive Displays 2014.  ACM, New York, USA.
-
-# The MIT License (MIT)
-
-# Copyright (c) 2014 Julie R. Williamson and John Williamson
-
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-
+"""
+ This code generates frames from CSV values that can be stiched together using FFMPEG 
+ to animate pedestrian data.  This version produces an animation at 4x speed.
+"""
 
 print "Importing..."
 
