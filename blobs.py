@@ -1,5 +1,5 @@
 import numpy as np
-import hungarian
+# import hungarian
 import munkres
 
 BLOB_LIFE = 25

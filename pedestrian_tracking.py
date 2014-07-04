@@ -114,12 +114,12 @@ def show_video(argv):
 	# for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,40))
 
 	# MOG Errosion/Dilation
-	for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
-	for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(10,20))
+	# for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
+	# for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(10,20))
 
 	# Default Erosion.Dilation
-	# for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,10))	
-	# for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,20))
+	for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,10))	
+	for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,20))
 
 
 	orange = np.dstack(((np.zeros((height, width)),np.ones((height, width))*128,np.ones((height,width))*255)))
@@ -186,7 +186,7 @@ def show_video(argv):
 		# im_dl = cv2.dilate(im_er, for_di)
 
 		# For using MOG algorithm background subtraction
-		im_er = cv2.erode(fgmask, for_er)
+		im_er = cv2.erode(im_bw, for_er)
 		im_dl = cv2.dilate(im_er, for_di)
 
 		contours, hierarchy = cv2.findContours(im_dl, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
