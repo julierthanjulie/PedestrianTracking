@@ -53,10 +53,13 @@
 
 <span class="n">BLOB_LIFE</span> <span class="o">=</span> <span class="mi">25</span>
 <span class="n">EDGE_THRESHOLD</span> <span class="o">=</span> <span class="mi">20</span>
-<span class="n">DISTANCE_THRESHOLD</span> <span class="o">=</span> <span class="mi">30</span> 
+<span class="n">DISTANCE_THRESHOLD</span> <span class="o">=</span> <span class="mi">50</span> 
 <span class="n">blob_id</span> <span class="o">=</span> <span class="mi">0</span>
 
-<span class="n">MOVE_LIMIT</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="c"># Celtic Connections</span>
+<span class="c"># MOVE_LIMIT = 50</span>
+
+<span class="n">MOVE_LIMIT</span> <span class="o">=</span> <span class="mi">7</span>
 
 <span class="n">MATCH_DISTANCE</span> <span class="o">=</span> <span class="mi">50</span>
 
@@ -86,9 +89,7 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
 		</div>
-<div class="viewcode-block" id="VirtualBlob.move"><a class="viewcode-back" href="../blobs.html#blobs.VirtualBlob.move">[docs]</a>	<span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		
-			
+<div class="viewcode-block" id="VirtualBlob.move"><a class="viewcode-back" href="../blobs.html#blobs.VirtualBlob.move">[docs]</a>	<span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>			
 		
 		<span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">MOVE_LIMIT</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">MOVE_LIMIT</span><span class="p">:</span>
 			<span class="c">#print &quot;Moving: &quot; , self.dx , &quot; &quot; , self.dy	</span>

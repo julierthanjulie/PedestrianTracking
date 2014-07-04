@@ -11,8 +11,11 @@ Contents:
 .. toctree::
    :maxdepth: 4
 
-   pedestrian_tracking
-   generate_frames
+   quickstart
+   overview
+   videoguideline
+   optimising
+
 
 
 These resources are available to analyse and visualise pedestrian traffic using computer vision. These files can generate behavioural maps and statistics about passers-by such as walking speed and direction. 

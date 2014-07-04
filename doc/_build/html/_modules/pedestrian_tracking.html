@@ -93,12 +93,12 @@
  </div>
 <div class="viewcode-block" id="show_video"><a class="viewcode-back" href="../pedestrian_tracking.html#pedestrian_tracking.show_video">[docs]</a><span class="k">def</span> <span class="nf">show_video</span><span class="p">(</span><span class="n">argv</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">	Main Function for all video processing.</span>
+<span class="sd">	Main Function for all video processing.  Defaults for this file are adjusted here.</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="n">tracker</span> <span class="o">=</span> <span class="n">blobs</span><span class="o">.</span><span class="n">BlobTracker</span><span class="p">()</span>
 	
 
-	<span class="n">video</span> <span class="o">=</span> <span class="s">&quot;/Users/julierwilliamson/Dropbox/ShortTest2.mov&quot;</span>
+	<span class="n">video</span> <span class="o">=</span> <span class="s">&quot;demo.avi&quot;</span>
 	<span class="n">background</span> <span class="o">=</span> <span class="s">&quot;/Users/julierwilliamson/Dropbox/ocv_python/alpha001.png&quot;</span>
 	<span class="n">output</span> <span class="o">=</span>  <span class="s">&quot;blob&quot;</span>
 	<span class="n">method</span> <span class="o">=</span> <span class="s">&quot;acc&quot;</span>
@@ -125,7 +125,7 @@
 	
 	<span class="k">print</span> <span class="n">video</span> <span class="p">,</span> <span class="s">&quot; &quot;</span> <span class="p">,</span> <span class="n">background</span> <span class="p">,</span> <span class="s">&quot; &quot;</span> <span class="p">,</span> <span class="n">output</span>
 	
-	<span class="n">file_name_base</span> <span class="o">=</span> <span class="n">video</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+	<span class="n">file_name_base</span> <span class="o">=</span> <span class="s">&quot;results/&quot;</span> <span class="o">+</span> <span class="n">video</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
 		
 	<span class="n">c</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
 	
@@ -155,11 +155,15 @@
 	
 	<span class="c">#writer = cv2.VideoWriter(output, 0,  fps, (width, height)) </span>
 	
-	<span class="n">for_er</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_ELLIPSE</span><span class="p">,(</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
-	<span class="n">for_di</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_ELLIPSE</span><span class="p">,(</span><span class="mi">20</span><span class="p">,</span><span class="mi">40</span><span class="p">))</span>
-	<span class="c">#for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,10))</span>
-	
-	<span class="c">#for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,10))</span>
+	<span class="c"># Celtic Connection Errosion/Dilation</span>
+	<span class="c"># for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,20))</span>
+	<span class="c"># for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,40))</span>
+
+
+	<span class="n">for_er</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_ELLIPSE</span><span class="p">,(</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>	
+	<span class="n">for_di</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_ELLIPSE</span><span class="p">,(</span><span class="mi">15</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
+
+
 	<span class="n">orange</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">(((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">)),</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span><span class="o">*</span><span class="mi">128</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">height</span><span class="p">,</span><span class="n">width</span><span class="p">))</span><span class="o">*</span><span class="mi">255</span><span class="p">)))</span>
 	<span class="n">ones</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 	
@@ -222,7 +226,7 @@
 		
 		
 		<span class="c">#cv2.imshow(&quot;Dilated&quot;, im_dl)</span>
-		<span class="k">print</span> <span class="s">&quot;Showing Erosion&quot;</span>
+
 		<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s">&quot;Eroded&quot;</span><span class="p">,</span> <span class="n">im_er</span><span class="p">)</span>
 		
 		<span class="c">#time.sleep(10000)</span>

@@ -44,9 +44,12 @@ def write_traces(traces, file_name):
  
 def show_video(argv):
 	"""
-	Main Function for all video processing.
+	Main Function for all video processing.  Defaults for this file are adjusted here.
 	"""
 	tracker = blobs.BlobTracker()
+
+	#  Testing MOG
+	bgs_mog = cv2.BackgroundSubtractorMOG(500,10,0.9,2)
 	
 
 	video = "demo.avi"
@@ -110,9 +113,13 @@ def show_video(argv):
 	# for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,20))
 	# for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,40))
 
+	# MOG Errosion/Dilation
+	for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
+	for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(10,20))
 
-	for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,10))	
-	for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,20))
+	# Default Erosion.Dilation
+	# for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,10))	
+	# for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,20))
 
 
 	orange = np.dstack(((np.zeros((height, width)),np.ones((height, width))*128,np.ones((height,width))*255)))
@@ -143,6 +150,8 @@ def show_video(argv):
 			cv2.accumulateWeighted(f, c_zero, 0.01)
 			
 		
+		fgmask = bgs_mog.apply(f)
+
 		
 		#im_zero = cv2.convertScaleAbs(c_zero)
 		im_zero = c_zero.astype(np.uint8)
@@ -164,23 +173,21 @@ def show_video(argv):
 		
 		#im_bw_smooth = cv2.medianBlue(im_bw, (5,5), 0)
 		
+		cv2.imshow("MOG Subtracted", fgmask)
 		#cv2.imshow("Image", f)
 		#cv2.imshow("Background", im_zero)
 		#cv2.imshow('Background Subtracted', d1)
-		#cv2.imshow("Thresholded", im_bw)
+		cv2.imshow("Thresholded", im_bw)
 		
 		
 		
-		im_er = cv2.erode(im_bw, for_er)
-		im_dl = cv2.dilate(im_er, for_di)
-		#im_dler = cv2.erode(im_dl, for_er)
-		
-		
-		#cv2.imshow("Dilated", im_dl)
+		# For using Motion Detection/Accumulated Image
+		# im_er = cv2.erode(im_bw, for_er)
+		# im_dl = cv2.dilate(im_er, for_di)
 
-		cv2.imshow("Eroded", im_er)
-		
-		#time.sleep(10000)
+		# For using MOG algorithm background subtraction
+		im_er = cv2.erode(fgmask, for_er)
+		im_dl = cv2.dilate(im_er, for_di)
 
 		contours, hierarchy = cv2.findContours(im_dl, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 	
