@@ -2,20 +2,23 @@ import numpy as np
 import hungarian
 import munkres
 
-BLOB_LIFE = 25
-EDGE_THRESHOLD = 20
-DISTANCE_THRESHOLD = 50 
+# Configuration constants
+BLOB_LIFE = 25              # life of blob in frames, if not seen 
+EDGE_THRESHOLD = 20         # border of image, in pixels, which is regarded as out-of-frame
+DISTANCE_THRESHOLD = 50     # distance threshold, in pixels. If blob is further than this from previous position, update is ignored
+MOVE_LIMIT = 7              # maximum velocity of the blob. If outside this limit, velocity is disabled
+MATCH_DISTANCE = 50         # maximum distance between blobs in the Hungarian algorithm matching step
+
+
 blob_id = 0
 
-# Celtic Connections
-# MOVE_LIMIT = 50
-
-MOVE_LIMIT = 7
-
-MATCH_DISTANCE = 50
 
 class VirtualBlob:
+    """Represents a single pedestrian blob."""
+    
 	def __init__(self, x,y):
+        """Create a new blob at the given (x,y) co-ordinate (in pixels). Each blob has a unique
+        ID number, and a random color (for visulisation)"""
 		global blob_id
 		self.x = x
 		self.y = y
@@ -28,8 +31,9 @@ class VirtualBlob:
 		blob_id = blob_id + 1
 	
 	def update_location(self, x, y):
+        """Update the current state of the blob to the new given position, if it is 
+        not too far away (<DISTANCE_THRESHOLD away) from the previous position"""
 		if abs(x-self.x)<DISTANCE_THRESHOLD and abs(y-self.y)<DISTANCE_THRESHOLD:
-			
 			self.dx = 0.8*self.dx + 0.2*(x - self.x)
 			self.dy = 0.8*self.dy + 0.2*(y - self.y)
 			self.x = 0.7*self.x + 0.3*x
@@ -37,21 +41,20 @@ class VirtualBlob:
 			self.got_updated = True
 		
 	def set_location(self, x, y):
+        """Change the position of the blob _without_ any distance filtering or velocity calculation."""
 		self.x = x
 		self.y = y
 		
 	def move(self):			
-		
+		"""Apply the current estimated velocity to the blob; used when the blob is not observed in the scene"""
 		if abs(self.dx) < MOVE_LIMIT and abs(self.dy) < MOVE_LIMIT:
-			#print "Moving: " , self.dx , " " , self.dy	
 			self.x += self.dx
 			self.y += self.dy
 	
-	def die_slightly(self):
+	def decay(self):
+        """Age the blob by one unit. When life<=0, return True, else return False"""
 		# update location using velocity
 		# die a bit
-		# return True if this blob is finally dead
-		#d = np.sqrt(self.dx**2+self.dy**2)
 		self.life = self.life - 1
 		return self.life<=0
 		
@@ -61,13 +64,17 @@ class VirtualBlob:
 		
 		
 class BlobTracker:
+    """The tracker object, which keeps track of a collection of pedestrian blobs"""
 	def __init__(self):
+        """Initialise a new, empty tracker"""
 		self.virtual_blobs = []
 		self.traces = {}
 		self.frame = 0
 		self.is_inited=False
 		
 	def init_blobs(self, blobs, fnum):
+        """Initialise a set of blobs, from a list of initial (x,y) co-ordinates, in the format
+        [(x,y), (x,y), ... ] """
 		# initialise virtual blobs to be blobs 
 		self.virtual_blobs = []
 		for blob in blobs:
@@ -75,13 +82,11 @@ class BlobTracker:
 			self.virtual_blobs.append(v)
 			self.traces[v.id] = [(v.x, v.y, fnum)]
 		self.is_inited = True
-		#print "Creating initial blobs"
-		#print self.virtual_blobs
-	
+		
 	#returns true is this blob is within the frame
 	def check_frame(self, blob, frame):
-	
-		#print "Blob: " , blob , " Frame: " , frame
+        """Given an (x,y) co-ordinated, check if that position is inside the central frame (i.e. is 
+        not inside the border region"""
 		
 		# Check Frame
 		in_frame = False
@@ -99,13 +104,12 @@ class BlobTracker:
 			in_frame = True
 		
 		return in_frame	
-		#return in_frame
-	
+		
 				
 	def track_blobs(self, blobs, frame, fnum):
-		# frame will be [left, bottom, right, top]
+        """Main update call. Takes a list of new, observed blob co-ordinates, a rectangular frame specifier of the form 
+		 [left, bottom, right, top] and a frame number, and updates the positions of the virtual blobs."""
 		
-		#print "Observed Blobs: " , len(blobs) , " Virtual Blobs: " , len(self.virtual_blobs)
 		
 		# initialise if not already done so
 		if not self.is_inited:
@@ -133,75 +137,59 @@ class BlobTracker:
 						dx = blobs[i][0]-self.virtual_blobs[j].x
 						dy = blobs[i][1]-self.virtual_blobs[j].y
 						distance_matrix[i,j] = np.sqrt(dx**2 + dy**2)
-						
-		
-		# get assignments
-		#rows, cols = hungarian.lap(distance_matrix)
-		
-		#print distance_matrix
 		
 		copy_distances = np.array(distance_matrix)
 		
 		m = munkres.Munkres()
 		ot = m.compute(distance_matrix)
 		rows = [t[1] for t in ot]
-		
-		#print "Hungarian: " , rows
-		
+				
 		# clear the update flag
 		for v in self.virtual_blobs:
 			v.got_updated = False
-		
-		
+				
 		# blobs on rows
 		for i,matching_virtual in enumerate(rows):
-			#print "I: " , i , " Matching Virtual: " ,  matching_virtual , " Distance: " , copy_distances[i][matching_virtual]
 			if i<len(blobs):
 				blob = blobs[i]
 				if matching_virtual<len(self.virtual_blobs):
 					if copy_distances[i][matching_virtual]< MATCH_DISTANCE:
 						self.virtual_blobs[matching_virtual].update_location(blob[0], blob[1])
 					elif self.check_frame(blob, frame):
-						#make a baby
-						#print "Blob %d made a new blob baby!" % i
 						
 						v = VirtualBlob(blob[0], blob[1])
 						self.virtual_blobs.append(v)
-						#print v.x, v.y
 						self.traces[v.id] = [(v.x, v.y, fnum)]
 				else:
 					# new baby blobs!
-					make_baby = False
+					spawn = False
 					# left
 					if blob[0]<frame[0]+EDGE_THRESHOLD:
-						make_baby = True
+						spawn = True
 					# right
 					if blob[0]>frame[2]-EDGE_THRESHOLD:
-						make_baby = True
+						spawn = True
 					# top
 					if blob[1]<frame[1]+EDGE_THRESHOLD:
-						make_baby = True
+						spawn = True
 					# bottom
 					if blob[1]>frame[3]-EDGE_THRESHOLD:
-						make_baby = True
+						spawn = True
 					
-					if make_baby:
-						#print "Blob %d made a new blob baby!" % i
-						
+					if spawn:						
 						v = VirtualBlob(blob[0], blob[1])
 						self.virtual_blobs.append(v)
-						#print v.x, v.y
 						self.traces[v.id] = [(v.x, v.y, fnum)]
 					else:
 						pass
-						#print "Blob %d was a noise blob :("
+						
 				
 		# deal with un-updated blobs
 		graveyard = []
 		for v in self.virtual_blobs:
 			if not v.got_updated:
 				# move, and reduce life counter
-				if v.die_slightly():
+				if v.decay():
 					#print "Virtual blob %s finally died." % v
 					graveyard.append(v)
 					
