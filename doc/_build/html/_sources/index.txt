@@ -15,6 +15,7 @@ Contents:
    overview
    videoguideline
    optimising
+   blobs
 
 
 

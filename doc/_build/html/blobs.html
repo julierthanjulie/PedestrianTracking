@@ -23,7 +23,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Pedestrian Tracking 1.2 documentation" href="index.html" /> 
+    <link rel="top" title="Pedestrian Tracking 1.2 documentation" href="index.html" />
+    <link rel="prev" title="Optmising the Pedestrian Tracker for Your Videos" href="optimising.html" /> 
   </head>
   <body>
     <div class="related">
@@ -35,6 +36,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="optimising.html" title="Optmising the Pedestrian Tracker for Your Videos"
+             accesskey="P">previous</a> |</li>
         <li><a href="index.html">Pedestrian Tracking 1.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -44,8 +48,66 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="blobs-module">
-<h1>blobs module<a class="headerlink" href="#blobs-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-blobs">
+<span id="blobs-module"></span><h1>blobs module<a class="headerlink" href="#module-blobs" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="blobs.BlobTracker">
+<em class="property">class </em><tt class="descclassname">blobs.</tt><tt class="descname">BlobTracker</tt><a class="reference internal" href="_modules/blobs.html#BlobTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blobs.BlobTracker" title="Permalink to this definition">¶</a></dt>
+<dd><p>The tracker object, which keeps track of a collection of pedestrian blobs</p>
+<dl class="method">
+<dt id="blobs.BlobTracker.check_frame">
+<tt class="descname">check_frame</tt><big>(</big><em>blob</em>, <em>frame</em><big>)</big><a class="reference internal" href="_modules/blobs.html#BlobTracker.check_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blobs.BlobTracker.check_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an (x,y) co-ordinated, check if that position is inside the central frame (i.e. is 
+not inside the border region</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="blobs.BlobTracker.init_blobs">
+<tt class="descname">init_blobs</tt><big>(</big><em>blobs</em>, <em>fnum</em><big>)</big><a class="reference internal" href="_modules/blobs.html#BlobTracker.init_blobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blobs.BlobTracker.init_blobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise a set of blobs, from a list of initial (x,y) co-ordinates, in the format
+[(x,y), (x,y), ... ]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="blobs.BlobTracker.track_blobs">
+<tt class="descname">track_blobs</tt><big>(</big><em>blobs</em>, <em>frame</em>, <em>fnum</em><big>)</big><a class="reference internal" href="_modules/blobs.html#BlobTracker.track_blobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blobs.BlobTracker.track_blobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main update call. Takes a list of new, observed blob co-ordinates, a rectangular frame specifier of the form 
+[left, bottom, right, top] and a frame number, and updates the positions of the virtual blobs.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="blobs.VirtualBlob">
+<em class="property">class </em><tt class="descclassname">blobs.</tt><tt class="descname">VirtualBlob</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="_modules/blobs.html#VirtualBlob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blobs.VirtualBlob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a single pedestrian blob.</p>
+<dl class="method">
+<dt id="blobs.VirtualBlob.decay">
+<tt class="descname">decay</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/blobs.html#VirtualBlob.decay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blobs.VirtualBlob.decay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Age the blob by one unit. When life&lt;=0, return True, else return False</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="blobs.VirtualBlob.move">
+<tt class="descname">move</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/blobs.html#VirtualBlob.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blobs.VirtualBlob.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the current estimated velocity to the blob; used when the blob is not observed in the scene</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="blobs.VirtualBlob.set_location">
+<tt class="descname">set_location</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="_modules/blobs.html#VirtualBlob.set_location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blobs.VirtualBlob.set_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the position of the blob _without_ any distance filtering or velocity calculation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="blobs.VirtualBlob.update_location">
+<tt class="descname">update_location</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="reference internal" href="_modules/blobs.html#VirtualBlob.update_location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#blobs.VirtualBlob.update_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the current state of the blob to the new given position, if it is 
+not too far away (&lt;DISTANCE_THRESHOLD away) from the previous position</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -54,6 +116,9 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="optimising.html"
+                        title="previous chapter">Optmising the Pedestrian Tracker for Your Videos</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/blobs.txt"
@@ -85,6 +150,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="optimising.html" title="Optmising the Pedestrian Tracker for Your Videos"
+             >previous</a> |</li>
         <li><a href="index.html">Pedestrian Tracking 1.2 documentation</a> &raquo;</li> 
       </ul>
     </div>

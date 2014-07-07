@@ -96,6 +96,9 @@
 <span class="sd">	Main Function for all video processing.  Defaults for this file are adjusted here.</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="n">tracker</span> <span class="o">=</span> <span class="n">blobs</span><span class="o">.</span><span class="n">BlobTracker</span><span class="p">()</span>
+
+	<span class="c">#  Testing MOG</span>
+	<span class="n">bgs_mog</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">BackgroundSubtractorMOG</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mf">0.9</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
 	
 
 	<span class="n">video</span> <span class="o">=</span> <span class="s">&quot;demo.avi&quot;</span>
@@ -159,7 +162,11 @@
 	<span class="c"># for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,20))</span>
 	<span class="c"># for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,40))</span>
 
+	<span class="c"># MOG Errosion/Dilation</span>
+	<span class="c"># for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))</span>
+	<span class="c"># for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(10,20))</span>
 
+	<span class="c"># Default Erosion.Dilation</span>
 	<span class="n">for_er</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_ELLIPSE</span><span class="p">,(</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>	
 	<span class="n">for_di</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_ELLIPSE</span><span class="p">,(</span><span class="mi">15</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
 
@@ -192,6 +199,8 @@
 			<span class="n">cv2</span><span class="o">.</span><span class="n">accumulateWeighted</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">c_zero</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
 			
 		
+		<span class="n">fgmask</span> <span class="o">=</span> <span class="n">bgs_mog</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
 		
 		<span class="c">#im_zero = cv2.convertScaleAbs(c_zero)</span>
 		<span class="n">im_zero</span> <span class="o">=</span> <span class="n">c_zero</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
@@ -213,23 +222,21 @@
 		
 		<span class="c">#im_bw_smooth = cv2.medianBlue(im_bw, (5,5), 0)</span>
 		
+		<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s">&quot;MOG Subtracted&quot;</span><span class="p">,</span> <span class="n">fgmask</span><span class="p">)</span>
 		<span class="c">#cv2.imshow(&quot;Image&quot;, f)</span>
 		<span class="c">#cv2.imshow(&quot;Background&quot;, im_zero)</span>
 		<span class="c">#cv2.imshow(&#39;Background Subtracted&#39;, d1)</span>
-		<span class="c">#cv2.imshow(&quot;Thresholded&quot;, im_bw)</span>
+		<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s">&quot;Thresholded&quot;</span><span class="p">,</span> <span class="n">im_bw</span><span class="p">)</span>
 		
 		
 		
+		<span class="c"># For using Motion Detection/Accumulated Image</span>
+		<span class="c"># im_er = cv2.erode(im_bw, for_er)</span>
+		<span class="c"># im_dl = cv2.dilate(im_er, for_di)</span>
+
+		<span class="c"># For using MOG algorithm background subtraction</span>
 		<span class="n">im_er</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">erode</span><span class="p">(</span><span class="n">im_bw</span><span class="p">,</span> <span class="n">for_er</span><span class="p">)</span>
 		<span class="n">im_dl</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">im_er</span><span class="p">,</span> <span class="n">for_di</span><span class="p">)</span>
-		<span class="c">#im_dler = cv2.erode(im_dl, for_er)</span>
-		
-		
-		<span class="c">#cv2.imshow(&quot;Dilated&quot;, im_dl)</span>
-
-		<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s">&quot;Eroded&quot;</span><span class="p">,</span> <span class="n">im_er</span><span class="p">)</span>
-		
-		<span class="c">#time.sleep(10000)</span>
 
 		<span class="n">contours</span><span class="p">,</span> <span class="n">hierarchy</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findContours</span><span class="p">(</span><span class="n">im_dl</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">RETR_EXTERNAL</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">CHAIN_APPROX_SIMPLE</span><span class="p">)</span>
 	

@@ -48,23 +48,31 @@
             
   <h1>Source code for blobs</h1><div class="highlight"><pre>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">hungarian</span>
+<span class="c"># import hungarian</span>
 <span class="kn">import</span> <span class="nn">munkres</span>
 
-<span class="n">BLOB_LIFE</span> <span class="o">=</span> <span class="mi">25</span>
-<span class="n">EDGE_THRESHOLD</span> <span class="o">=</span> <span class="mi">20</span>
-<span class="n">DISTANCE_THRESHOLD</span> <span class="o">=</span> <span class="mi">50</span> 
+<span class="c"># Configuration constants</span>
+<span class="n">BLOB_LIFE</span> <span class="o">=</span> <span class="mi">25</span>              <span class="c"># life of blob in frames, if not seen </span>
+<span class="n">EDGE_THRESHOLD</span> <span class="o">=</span> <span class="mi">20</span>         <span class="c"># border of image, in pixels, which is regarded as out-of-frame</span>
+<span class="n">DISTANCE_THRESHOLD</span> <span class="o">=</span> <span class="mi">50</span>     <span class="c"># distance threshold, in pixels. If blob is further than this from previous position, update is ignored</span>
+<span class="n">MOVE_LIMIT</span> <span class="o">=</span> <span class="mi">7</span>              <span class="c"># maximum velocity of the blob. If outside this limit, velocity is disabled</span>
+<span class="n">MATCH_DISTANCE</span> <span class="o">=</span> <span class="mi">50</span>         <span class="c"># maximum distance between blobs in the Hungarian algorithm matching step</span>
+
+
 <span class="n">blob_id</span> <span class="o">=</span> <span class="mi">0</span>
 
-<span class="c"># Celtic Connections</span>
-<span class="c"># MOVE_LIMIT = 50</span>
-
-<span class="n">MOVE_LIMIT</span> <span class="o">=</span> <span class="mi">7</span>
-
-<span class="n">MATCH_DISTANCE</span> <span class="o">=</span> <span class="mi">50</span>
 
 <div class="viewcode-block" id="VirtualBlob"><a class="viewcode-back" href="../blobs.html#blobs.VirtualBlob">[docs]</a><span class="k">class</span> <span class="nc">VirtualBlob</span><span class="p">:</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Represents a single pedestrian blob.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
 	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Create a new blob at the given (x,y) co-ordinate (in pixels). Each blob has a unique</span>
+<span class="sd">		ID number, and a random color (for visulisation)</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
 		<span class="k">global</span> <span class="n">blob_id</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
@@ -77,8 +85,9 @@
 		<span class="n">blob_id</span> <span class="o">=</span> <span class="n">blob_id</span> <span class="o">+</span> <span class="mi">1</span>
 	
 <div class="viewcode-block" id="VirtualBlob.update_location"><a class="viewcode-back" href="../blobs.html#blobs.VirtualBlob.update_location">[docs]</a>	<span class="k">def</span> <span class="nf">update_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Update the current state of the blob to the new given position, if it is </span>
+<span class="sd">		not too far away (&lt;DISTANCE_THRESHOLD away) from the previous position&quot;&quot;&quot;</span>
 		<span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">&lt;</span><span class="n">DISTANCE_THRESHOLD</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">y</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">&lt;</span><span class="n">DISTANCE_THRESHOLD</span><span class="p">:</span>
-			
 			<span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="mf">0.8</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">+</span> <span class="mf">0.2</span><span class="o">*</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">=</span> <span class="mf">0.8</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">+</span> <span class="mf">0.2</span><span class="o">*</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mf">0.7</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.3</span><span class="o">*</span><span class="n">x</span>
@@ -86,21 +95,20 @@
 			<span class="bp">self</span><span class="o">.</span><span class="n">got_updated</span> <span class="o">=</span> <span class="bp">True</span>
 		</div>
 <div class="viewcode-block" id="VirtualBlob.set_location"><a class="viewcode-back" href="../blobs.html#blobs.VirtualBlob.set_location">[docs]</a>	<span class="k">def</span> <span class="nf">set_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Change the position of the blob _without_ any distance filtering or velocity calculation.&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
 		</div>
 <div class="viewcode-block" id="VirtualBlob.move"><a class="viewcode-back" href="../blobs.html#blobs.VirtualBlob.move">[docs]</a>	<span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>			
-		
+		<span class="sd">&quot;&quot;&quot;Apply the current estimated velocity to the blob; used when the blob is not observed in the scene&quot;&quot;&quot;</span>
 		<span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">MOVE_LIMIT</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">MOVE_LIMIT</span><span class="p">:</span>
-			<span class="c">#print &quot;Moving: &quot; , self.dx , &quot; &quot; , self.dy	</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dy</span>
 	</div>
-<div class="viewcode-block" id="VirtualBlob.die_slightly"><a class="viewcode-back" href="../blobs.html#blobs.VirtualBlob.die_slightly">[docs]</a>	<span class="k">def</span> <span class="nf">die_slightly</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="VirtualBlob.decay"><a class="viewcode-back" href="../blobs.html#blobs.VirtualBlob.decay">[docs]</a>	<span class="k">def</span> <span class="nf">decay</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Age the blob by one unit. When life&lt;=0, return True, else return False&quot;&quot;&quot;</span>
 		<span class="c"># update location using velocity</span>
 		<span class="c"># die a bit</span>
-		<span class="c"># return True if this blob is finally dead</span>
-		<span class="c">#d = np.sqrt(self.dx**2+self.dy**2)</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">life</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">life</span> <span class="o">-</span> <span class="mi">1</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">life</span><span class="o">&lt;=</span><span class="mi">0</span>
 		</div>
@@ -110,13 +118,17 @@
 		
 		</div>
 <div class="viewcode-block" id="BlobTracker"><a class="viewcode-back" href="../blobs.html#blobs.BlobTracker">[docs]</a><span class="k">class</span> <span class="nc">BlobTracker</span><span class="p">:</span>
+	<span class="sd">&quot;&quot;&quot;The tracker object, which keeps track of a collection of pedestrian blobs&quot;&quot;&quot;</span>
 	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Initialise a new, empty tracker&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">virtual_blobs</span> <span class="o">=</span> <span class="p">[]</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">traces</span> <span class="o">=</span> <span class="p">{}</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">frame</span> <span class="o">=</span> <span class="mi">0</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">is_inited</span><span class="o">=</span><span class="bp">False</span>
 		
 <div class="viewcode-block" id="BlobTracker.init_blobs"><a class="viewcode-back" href="../blobs.html#blobs.BlobTracker.init_blobs">[docs]</a>	<span class="k">def</span> <span class="nf">init_blobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blobs</span><span class="p">,</span> <span class="n">fnum</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Initialise a set of blobs, from a list of initial (x,y) co-ordinates, in the format</span>
+<span class="sd">		[(x,y), (x,y), ... ] &quot;&quot;&quot;</span>
 		<span class="c"># initialise virtual blobs to be blobs </span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">virtual_blobs</span> <span class="o">=</span> <span class="p">[]</span>
 		<span class="k">for</span> <span class="n">blob</span> <span class="ow">in</span> <span class="n">blobs</span><span class="p">:</span>
@@ -124,13 +136,11 @@
 			<span class="bp">self</span><span class="o">.</span><span class="n">virtual_blobs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">traces</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">fnum</span><span class="p">)]</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">is_inited</span> <span class="o">=</span> <span class="bp">True</span>
-		<span class="c">#print &quot;Creating initial blobs&quot;</span>
-		<span class="c">#print self.virtual_blobs</span>
-	
+		
 	<span class="c">#returns true is this blob is within the frame</span></div>
 <div class="viewcode-block" id="BlobTracker.check_frame"><a class="viewcode-back" href="../blobs.html#blobs.BlobTracker.check_frame">[docs]</a>	<span class="k">def</span> <span class="nf">check_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blob</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
-	
-		<span class="c">#print &quot;Blob: &quot; , blob , &quot; Frame: &quot; , frame</span>
+		<span class="sd">&quot;&quot;&quot;Given an (x,y) co-ordinated, check if that position is inside the central frame (i.e. is </span>
+<span class="sd">		not inside the border region&quot;&quot;&quot;</span>
 		
 		<span class="c"># Check Frame</span>
 		<span class="n">in_frame</span> <span class="o">=</span> <span class="bp">False</span>
@@ -148,13 +158,12 @@
 			<span class="n">in_frame</span> <span class="o">=</span> <span class="bp">True</span>
 		
 		<span class="k">return</span> <span class="n">in_frame</span>	
-		<span class="c">#return in_frame</span>
-	
+		
 				</div>
 <div class="viewcode-block" id="BlobTracker.track_blobs"><a class="viewcode-back" href="../blobs.html#blobs.BlobTracker.track_blobs">[docs]</a>	<span class="k">def</span> <span class="nf">track_blobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blobs</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">fnum</span><span class="p">):</span>
-		<span class="c"># frame will be [left, bottom, right, top]</span>
+		<span class="sd">&quot;&quot;&quot;Main update call. Takes a list of new, observed blob co-ordinates, a rectangular frame specifier of the form </span>
+<span class="sd">		 [left, bottom, right, top] and a frame number, and updates the positions of the virtual blobs.&quot;&quot;&quot;</span>
 		
-		<span class="c">#print &quot;Observed Blobs: &quot; , len(blobs) , &quot; Virtual Blobs: &quot; , len(self.virtual_blobs)</span>
 		
 		<span class="c"># initialise if not already done so</span>
 		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_inited</span><span class="p">:</span>
@@ -182,75 +191,59 @@
 						<span class="n">dx</span> <span class="o">=</span> <span class="n">blobs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">virtual_blobs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">x</span>
 						<span class="n">dy</span> <span class="o">=</span> <span class="n">blobs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">virtual_blobs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">y</span>
 						<span class="n">distance_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">dy</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-						
-		
-		<span class="c"># get assignments</span>
-		<span class="c">#rows, cols = hungarian.lap(distance_matrix)</span>
-		
-		<span class="c">#print distance_matrix</span>
 		
 		<span class="n">copy_distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">)</span>
 		
 		<span class="n">m</span> <span class="o">=</span> <span class="n">munkres</span><span class="o">.</span><span class="n">Munkres</span><span class="p">()</span>
 		<span class="n">ot</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">)</span>
 		<span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ot</span><span class="p">]</span>
-		
-		<span class="c">#print &quot;Hungarian: &quot; , rows</span>
-		
+				
 		<span class="c"># clear the update flag</span>
 		<span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">virtual_blobs</span><span class="p">:</span>
 			<span class="n">v</span><span class="o">.</span><span class="n">got_updated</span> <span class="o">=</span> <span class="bp">False</span>
-		
-		
+				
 		<span class="c"># blobs on rows</span>
 		<span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">matching_virtual</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
-			<span class="c">#print &quot;I: &quot; , i , &quot; Matching Virtual: &quot; ,  matching_virtual , &quot; Distance: &quot; , copy_distances[i][matching_virtual]</span>
 			<span class="k">if</span> <span class="n">i</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">blobs</span><span class="p">):</span>
 				<span class="n">blob</span> <span class="o">=</span> <span class="n">blobs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 				<span class="k">if</span> <span class="n">matching_virtual</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">virtual_blobs</span><span class="p">):</span>
 					<span class="k">if</span> <span class="n">copy_distances</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">matching_virtual</span><span class="p">]</span><span class="o">&lt;</span> <span class="n">MATCH_DISTANCE</span><span class="p">:</span>
 						<span class="bp">self</span><span class="o">.</span><span class="n">virtual_blobs</span><span class="p">[</span><span class="n">matching_virtual</span><span class="p">]</span><span class="o">.</span><span class="n">update_location</span><span class="p">(</span><span class="n">blob</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">blob</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 					<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_frame</span><span class="p">(</span><span class="n">blob</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
-						<span class="c">#make a baby</span>
-						<span class="c">#print &quot;Blob %d made a new blob baby!&quot; % i</span>
 						
 						<span class="n">v</span> <span class="o">=</span> <span class="n">VirtualBlob</span><span class="p">(</span><span class="n">blob</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">blob</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 						<span class="bp">self</span><span class="o">.</span><span class="n">virtual_blobs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-						<span class="c">#print v.x, v.y</span>
 						<span class="bp">self</span><span class="o">.</span><span class="n">traces</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">fnum</span><span class="p">)]</span>
 				<span class="k">else</span><span class="p">:</span>
 					<span class="c"># new baby blobs!</span>
-					<span class="n">make_baby</span> <span class="o">=</span> <span class="bp">False</span>
+					<span class="n">spawn</span> <span class="o">=</span> <span class="bp">False</span>
 					<span class="c"># left</span>
 					<span class="k">if</span> <span class="n">blob</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&lt;</span><span class="n">frame</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">EDGE_THRESHOLD</span><span class="p">:</span>
-						<span class="n">make_baby</span> <span class="o">=</span> <span class="bp">True</span>
+						<span class="n">spawn</span> <span class="o">=</span> <span class="bp">True</span>
 					<span class="c"># right</span>
 					<span class="k">if</span> <span class="n">blob</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&gt;</span><span class="n">frame</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">EDGE_THRESHOLD</span><span class="p">:</span>
-						<span class="n">make_baby</span> <span class="o">=</span> <span class="bp">True</span>
+						<span class="n">spawn</span> <span class="o">=</span> <span class="bp">True</span>
 					<span class="c"># top</span>
 					<span class="k">if</span> <span class="n">blob</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;</span><span class="n">frame</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">EDGE_THRESHOLD</span><span class="p">:</span>
-						<span class="n">make_baby</span> <span class="o">=</span> <span class="bp">True</span>
+						<span class="n">spawn</span> <span class="o">=</span> <span class="bp">True</span>
 					<span class="c"># bottom</span>
 					<span class="k">if</span> <span class="n">blob</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;</span><span class="n">frame</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">-</span><span class="n">EDGE_THRESHOLD</span><span class="p">:</span>
-						<span class="n">make_baby</span> <span class="o">=</span> <span class="bp">True</span>
+						<span class="n">spawn</span> <span class="o">=</span> <span class="bp">True</span>
 					
-					<span class="k">if</span> <span class="n">make_baby</span><span class="p">:</span>
-						<span class="c">#print &quot;Blob %d made a new blob baby!&quot; % i</span>
-						
+					<span class="k">if</span> <span class="n">spawn</span><span class="p">:</span>						
 						<span class="n">v</span> <span class="o">=</span> <span class="n">VirtualBlob</span><span class="p">(</span><span class="n">blob</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">blob</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 						<span class="bp">self</span><span class="o">.</span><span class="n">virtual_blobs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-						<span class="c">#print v.x, v.y</span>
 						<span class="bp">self</span><span class="o">.</span><span class="n">traces</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">fnum</span><span class="p">)]</span>
 					<span class="k">else</span><span class="p">:</span>
 						<span class="k">pass</span>
-						<span class="c">#print &quot;Blob %d was a noise blob :(&quot;</span>
+						
 				
 		<span class="c"># deal with un-updated blobs</span>
 		<span class="n">graveyard</span> <span class="o">=</span> <span class="p">[]</span>
 		<span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">virtual_blobs</span><span class="p">:</span>
 			<span class="k">if</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">got_updated</span><span class="p">:</span>
 				<span class="c"># move, and reduce life counter</span>
-				<span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">die_slightly</span><span class="p">():</span>
+				<span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">decay</span><span class="p">():</span>
 					<span class="c">#print &quot;Virtual blob %s finally died.&quot; % v</span>
 					<span class="n">graveyard</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 					

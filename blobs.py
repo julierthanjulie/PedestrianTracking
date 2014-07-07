@@ -1,24 +1,30 @@
 import numpy as np
-# import hungarian
 import munkres
 
-# Configuration constants
-BLOB_LIFE = 25              # life of blob in frames, if not seen 
-EDGE_THRESHOLD = 20         # border of image, in pixels, which is regarded as out-of-frame
-DISTANCE_THRESHOLD = 50     # distance threshold, in pixels. If blob is further than this from previous position, update is ignored
-MOVE_LIMIT = 7              # maximum velocity of the blob. If outside this limit, velocity is disabled
-MATCH_DISTANCE = 50         # maximum distance between blobs in the Hungarian algorithm matching step
+import pt_config
+
+# Configuration constants.  Change these in pt_config
+BLOB_LIFE = pt_config.BLOB_LIFE              # life of blob in frames, if not seen 
+EDGE_THRESHOLD = pt_config.EDGE_THRESHOLD         # border of image, in pixels, which is regarded as out-of-frame
+DISTANCE_THRESHOLD = pt_config.DISTANCE_THRESHOLD     # distance threshold, in pixels. If blob is further than this from previous position, update is ignored
+MOVE_LIMIT = pt_config.MOVE_LIMIT          # maximum velocity of the blob. If outside this limit, velocity is disabled
+MATCH_DISTANCE = pt_config.MATCH_DISTANCE         # maximum distance between blobs in the Hungarian algorithm matching step
 
 
 blob_id = 0
 
 
 class VirtualBlob:
-    """Represents a single pedestrian blob."""
-    
+	"""
+	Represents a single pedestrian blob.
+	"""
+
 	def __init__(self, x,y):
-        """Create a new blob at the given (x,y) co-ordinate (in pixels). Each blob has a unique
-        ID number, and a random color (for visulisation)"""
+		"""
+		Create a new blob at the given (x,y) co-ordinate (in pixels). Each blob has a unique
+		ID number, and a random color (for visulisation)
+		"""
+
 		global blob_id
 		self.x = x
 		self.y = y
@@ -31,8 +37,8 @@ class VirtualBlob:
 		blob_id = blob_id + 1
 	
 	def update_location(self, x, y):
-        """Update the current state of the blob to the new given position, if it is 
-        not too far away (<DISTANCE_THRESHOLD away) from the previous position"""
+		"""Update the current state of the blob to the new given position, if it is 
+		not too far away (<DISTANCE_THRESHOLD away) from the previous position"""
 		if abs(x-self.x)<DISTANCE_THRESHOLD and abs(y-self.y)<DISTANCE_THRESHOLD:
 			self.dx = 0.8*self.dx + 0.2*(x - self.x)
 			self.dy = 0.8*self.dy + 0.2*(y - self.y)
@@ -41,7 +47,7 @@ class VirtualBlob:
 			self.got_updated = True
 		
 	def set_location(self, x, y):
-        """Change the position of the blob _without_ any distance filtering or velocity calculation."""
+		"""Change the position of the blob _without_ any distance filtering or velocity calculation."""
 		self.x = x
 		self.y = y
 		
@@ -52,7 +58,7 @@ class VirtualBlob:
 			self.y += self.dy
 	
 	def decay(self):
-        """Age the blob by one unit. When life<=0, return True, else return False"""
+		"""Age the blob by one unit. When life<=0, return True, else return False"""
 		# update location using velocity
 		# die a bit
 		self.life = self.life - 1
@@ -64,17 +70,17 @@ class VirtualBlob:
 		
 		
 class BlobTracker:
-    """The tracker object, which keeps track of a collection of pedestrian blobs"""
+	"""The tracker object, which keeps track of a collection of pedestrian blobs"""
 	def __init__(self):
-        """Initialise a new, empty tracker"""
+		"""Initialise a new, empty tracker"""
 		self.virtual_blobs = []
 		self.traces = {}
 		self.frame = 0
 		self.is_inited=False
 		
 	def init_blobs(self, blobs, fnum):
-        """Initialise a set of blobs, from a list of initial (x,y) co-ordinates, in the format
-        [(x,y), (x,y), ... ] """
+		"""Initialise a set of blobs, from a list of initial (x,y) co-ordinates, in the format
+		[(x,y), (x,y), ... ] """
 		# initialise virtual blobs to be blobs 
 		self.virtual_blobs = []
 		for blob in blobs:
@@ -85,8 +91,8 @@ class BlobTracker:
 		
 	#returns true is this blob is within the frame
 	def check_frame(self, blob, frame):
-        """Given an (x,y) co-ordinated, check if that position is inside the central frame (i.e. is 
-        not inside the border region"""
+		"""Given an (x,y) co-ordinated, check if that position is inside the central frame (i.e. is 
+		not inside the border region"""
 		
 		# Check Frame
 		in_frame = False
@@ -107,7 +113,7 @@ class BlobTracker:
 		
 				
 	def track_blobs(self, blobs, frame, fnum):
-        """Main update call. Takes a list of new, observed blob co-ordinates, a rectangular frame specifier of the form 
+		"""Main update call. Takes a list of new, observed blob co-ordinates, a rectangular frame specifier of the form 
 		 [left, bottom, right, top] and a frame number, and updates the positions of the virtual blobs."""
 		
 		
@@ -199,4 +205,3 @@ class BlobTracker:
 		# clean up the bodies
 		for v in graveyard:
 			self.virtual_blobs.remove(v)
-			

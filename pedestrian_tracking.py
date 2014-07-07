@@ -18,13 +18,8 @@ import blobs
 import numpy as np
 import time
 
-#  The frame is used to detect pedestrians entering the frame of view, and to remove noise.
-#  Blobs detected within the frame are treated differently than those outside the frame.
-FRAME_WIDTH = 30
-
-
-#  Show a video preview during vision processing
-draw_video = True
+#  Adjust all aspects of the configuration for this module at pt_config
+import pt_config
 
 #  Outputs all traces from this script as a CSV file
 def write_traces(traces, file_name):
@@ -48,12 +43,9 @@ def show_video(argv):
 	"""
 	tracker = blobs.BlobTracker()
 
-	#  Testing MOG
-	bgs_mog = cv2.BackgroundSubtractorMOG(500,10,0.9,2)
-	
-
+	#  Default Options for Running in Demo Mode
 	video = "demo.avi"
-	background = "/Users/julierwilliamson/Dropbox/ocv_python/alpha001.png"
+	background = "demo_0.png"
 	output =  "blob"
 	method = "acc"
 	
@@ -105,10 +97,9 @@ def show_video(argv):
 	fourcc = c.get(6)
 	frames = c.get(7)
 	
+	#  Print out some initial information about the video to be processed.
 	print fourcc, fps, width, height, frames
-	
-	#writer = cv2.VideoWriter(output, 0,  fps, (width, height)) 
-	
+		
 	# Celtic Connection Errosion/Dilation
 	# for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,20))
 	# for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,40))
@@ -117,9 +108,19 @@ def show_video(argv):
 	# for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
 	# for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(10,20))
 
-	# Default Erosion.Dilation
-	for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,10))	
-	for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,20))
+	
+	if method == "mog":
+		#  Setup MOG element for generated background subtractions
+		bgs_mog = cv2.BackgroundSubtractorMOG(3,4,0.99)
+		
+		# MOG Erosion.Dilation
+		for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(pt_config.mog_er_w, pt_config.mog_er_h))	
+		for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(pt_config.mog_di_w, pt_config.mog_di_h))
+
+	else:
+		# ACC or EXT Erosion and Dilation
+		for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(pt_config.er_w, pt_config.er_h))	
+		for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(pt_config.di_w, pt_config.di_h))
 
 
 	orange = np.dstack(((np.zeros((height, width)),np.ones((height, width))*128,np.ones((height,width))*255)))
@@ -128,14 +129,16 @@ def show_video(argv):
 	trails = np.zeros((height, width, 3)).astype(np.uint8)
 	start_t = time.clock()	
 	current_frame = 0
+	
 	while 1:
 		
 		#s = raw_input()
 		
+		#  Get the next frame of the video
 		_,f = c.read()
+
+		#  Do some caculations to determin and print out progress.
 		current_frame = c.get(1)
-		#print current_frame
-		#print "Percentage: " , int((current_frame/frames)*100) , " Traces: " , len(tracker.traces)
 		t = time.clock()-start_t
 		remainder = 1.0 - current_frame/float(frames)
 		current = current_frame/float(frames)
@@ -144,48 +147,41 @@ def show_video(argv):
 		if current_frame%20==0:
 			print "Percentage: " , int((current_frame/frames)*100) , " Traces: " , len(tracker.traces), "Time left (m): ", remaining
 		
+
+		if method =="mog":
+			im_bw = bgs_mog.apply(f)
+
+		#  If using the accumulated image (basic motion detection) infer the background image for this frame
+		else:
+
+			if method =="acc":
+				cv2.accumulateWeighted(f, c_zero, 0.01)
+
+			#im_zero = cv2.convertScaleAbs(c_zero)
+			im_zero = c_zero.astype(np.uint8)
+	
+			#  Get the first diff image - this is raw motion 
+			d1 = cv2.absdiff(f, im_zero)
+	
+			#  Convert this to greyscale
+			gray_image = cv2.cvtColor(d1, cv2.COLOR_BGR2GRAY)
 		
 		
-		if method == "acc":
-			cv2.accumulateWeighted(f, c_zero, 0.01)
-			
-		
-		fgmask = bgs_mog.apply(f)
+			#  ksize aperture linear size, must be odd
+			#gray_smooth = cv2.medianBlur(gray_image, 5)
+
+			#  Turn this into a black and white image (white is movement)
+			thresh, im_bw = cv2.threshold(gray_image, 15, 255, cv2.THRESH_BINARY)
 
 		
-		#im_zero = cv2.convertScaleAbs(c_zero)
-		im_zero = c_zero.astype(np.uint8)
-	
-		#  Get the first diff image - this is raw motion 
-		d1 = cv2.absdiff(f, im_zero)
-	
-		#  Convert this to greyscale
-		gray_image = cv2.cvtColor(d1, cv2.COLOR_BGR2GRAY)
-		
-		
-		#  ksize aperture linear size, must be odd
-		#gray_smooth = cv2.medianBlur(gray_image, 5)
-
-		#  Turn this into a black and white image (white is movement)
-		thresh, im_bw = cv2.threshold(gray_image, 15, 255, cv2.THRESH_BINARY)
-		
-		#bw_smooth = cv2.medianBlur(im_bw, 1)
-		
-		#im_bw_smooth = cv2.medianBlue(im_bw, (5,5), 0)
-		
-		cv2.imshow("MOG Subtracted", fgmask)
+		# TODO Add Booleans to show or hide processing images
 		#cv2.imshow("Image", f)
 		#cv2.imshow("Background", im_zero)
 		#cv2.imshow('Background Subtracted', d1)
-		cv2.imshow("Thresholded", im_bw)
+		#cv2.imshow("Thresholded", im_bw)
 		
 		
-		
-		# For using Motion Detection/Accumulated Image
-		# im_er = cv2.erode(im_bw, for_er)
-		# im_dl = cv2.dilate(im_er, for_di)
-
-		# For using MOG algorithm background subtraction
+		#  Erode and Dilate Image to make blobs clearer.  Adjust erosion and dilation values in pt_config
 		im_er = cv2.erode(im_bw, for_er)
 		im_dl = cv2.dilate(im_er, for_di)
 
@@ -215,12 +211,8 @@ def show_video(argv):
 			for v in tracker.virtual_blobs:
 				cv2.rectangle(f, (int(v.x),int(v.y)), (int(v.x+5), int(v.y+5)), v.color, 2)
 		
-		#  Get blank image setup
 		
-		
-			
-		
-		if draw_video:
+		if pt_config.draw_video:
 			
 			#total_trails = np.zeros((height,width,3), np.uint8)
 			#alpha_trails = np.zeros((height,width,3), np.float64)
@@ -267,7 +259,7 @@ def show_video(argv):
 			cv2.drawContours(f,contours,-1,(0,255,0),1) 
 		
 			#  draw frame
-			cv2.rectangle(f, (FRAME_WIDTH,FRAME_WIDTH) ,(width-FRAME_WIDTH,height-FRAME_WIDTH), (0,0,0),2)
+			cv2.rectangle(f, (pt_config.FRAME_WIDTH,pt_config.FRAME_WIDTH) ,(width-pt_config.FRAME_WIDTH,height-pt_config.FRAME_WIDTH), (0,0,0),2)
 		
 			#  Current output		
 			cv2.imshow('output',f)
@@ -279,6 +271,9 @@ def show_video(argv):
 			
 			#  Save the pic
 			cv2.imwrite(file_name_base + "_last_frame.png", f)
+
+			#  TODO 
+			#  Write a log of the values used to generate these traces
 			
 			write_traces(tracker.traces, file_name_base)
 
@@ -290,7 +285,7 @@ def show_video(argv):
 			
 	
 			#  Kill switch
-		if current_frame%10==0 and draw_video:
+		if current_frame%10==0 and pt_config.draw_video:
 			k = cv2.waitKey(1)
 		else:
 			k = 0
