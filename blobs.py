@@ -28,8 +28,8 @@ class VirtualBlob:
 		global blob_id
 		self.x = x
 		self.y = y
-		self.dx = 4
-		self.dy = 4
+		self.dx = 0
+		self.dy = 0
 		self.life = BLOB_LIFE
 		self.got_updated = False
 		self.color = (np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255))
@@ -44,8 +44,9 @@ class VirtualBlob:
 			self.dy = 0.8*self.dy + 0.2*(y - self.y)
 			self.x = 0.7*self.x + 0.3*x
 			self.y = 0.7*self.y + 0.3*y
+			self.life = BLOB_LIFE
 			self.got_updated = True
-		
+
 	def set_location(self, x, y):
 		"""Change the position of the blob _without_ any distance filtering or velocity calculation."""
 		self.x = x

@@ -12,25 +12,40 @@ FRAME_WIDTH = 30
 draw_video = True
 
 #  Errosion and Dilation rates to adjust accuracy of tracking/noise removal
-er_w = 5
-er_h = 10
+er_w = 7
+er_h = 7
 
 di_w = 15
 di_h = 20
 
-#  Erosion and Dilation for MOG technique.  These are still under construction.
-mog_er_w = 3
-mog_er_h = 3
+# #  Erosion and Dilation for MOG technique.  These are still under construction.
+# mog_er_w = 12
+# mog_er_h = 12
 
-mog_di_w = 25
-mog_di_h = 30
+# mog_di_w = 20
+# mog_di_h = 30
+
+#  Erosion and Dilation for MOG technique.  These are still under construction.
+mog_er_w = 7
+mog_er_h = 7
+
+mog_di_w = 16
+mog_di_h = 26
+
+#  Specify masks, for example a spherical display situated in the centre of the screen that should be masked out
+#  masks = [(315,200,50,50)]
+
+masks = []
 
 """
 These parameters are used to configure blobs.py
 """
 # Configuration constants
-BLOB_LIFE = 25              # life of blob in frames, if not seen 
+BLOB_LIFE = 15              # life of blob in frames, if not seen 
 EDGE_THRESHOLD = 20         # border of image, in pixels, which is regarded as out-of-frame
-DISTANCE_THRESHOLD = 50     # distance threshold, in pixels. If blob is further than this from previous position, update is ignored
-MOVE_LIMIT = 7              # maximum velocity of the blob. If outside this limit, velocity is disabled
-MATCH_DISTANCE = 50         # maximum distance between blobs in the Hungarian algorithm matching step
+DISTANCE_THRESHOLD = 60     # distance threshold, in pixels. If blob is further than this from previous position, update is ignored
+MOVE_LIMIT = 15              # maximum velocity of the blob. If outside this limit, velocity is disabled
+MATCH_DISTANCE = 20         # maximum distance between blobs in the Hungarian algorithm matching step
+
+
+

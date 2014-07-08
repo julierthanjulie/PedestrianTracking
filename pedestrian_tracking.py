@@ -34,6 +34,26 @@ def write_traces(traces, file_name):
 			trace_f.write(thing)
 	trace_f.close()
 
+def write_log(sub, file_name):
+	"""
+	This function writes a log of the parameters the generated the traces file.
+	"""
+	log_f = open(file_name + "_parameters.log", "w")
+
+	log_f.write("Method=" + sub + "\n")
+	log_f.write("FrameWidth=" + str(pt_config.FRAME_WIDTH) + "\n")
+	log_f.write("BlobLife=" + str(pt_config.BLOB_LIFE) + "\n")
+	log_f.write("EdgeThreshold=" + str(pt_config.EDGE_THRESHOLD) + "\n")
+	log_f.write("MoveLimit=" + str(pt_config.MOVE_LIMIT) + "\n")
+	log_f.write("MatchDistance=" + str(pt_config.MATCH_DISTANCE) + "\n")
+	# log_f.write()
+	# log_f.write()
+	
+
+
+
+	log_f.close()
+
 
  
  
@@ -68,6 +88,7 @@ def show_video(argv):
 			method = arg
 			
 			
+	masks = pt_config.masks
 	
 	print video , " " , background , " " , output
 	
@@ -111,8 +132,11 @@ def show_video(argv):
 	
 	if method == "mog":
 		#  Setup MOG element for generated background subtractions
-		bgs_mog = cv2.BackgroundSubtractorMOG(3,4,0.99)
+		# bgs_mog = cv2.BackgroundSubtractorMOG(4,3,.99,5)
+		bgs_mog = cv2.BackgroundSubtractorMOG2()
 		
+
+
 		# MOG Erosion.Dilation
 		for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(pt_config.mog_er_w, pt_config.mog_er_h))	
 		for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(pt_config.mog_di_w, pt_config.mog_di_h))
@@ -144,12 +168,14 @@ def show_video(argv):
 		current = current_frame/float(frames)
 		remaining = int(((t/current)*remainder) / 60.0)
 		
-		if current_frame%20==0:
+		if int(current_frame)%25==0:
 			print "Percentage: " , int((current_frame/frames)*100) , " Traces: " , len(tracker.traces), "Time left (m): ", remaining
 		
 
 		if method =="mog":
-			im_bw = bgs_mog.apply(f)
+			grey_image = bgs_mog.apply(f)
+			#  Turn this into a black and white image (white is movement)
+			thresh, im_bw = cv2.threshold(grey_image, 225, 255, cv2.THRESH_BINARY)
 
 		#  If using the accumulated image (basic motion detection) infer the background image for this frame
 		else:
@@ -159,6 +185,8 @@ def show_video(argv):
 
 			#im_zero = cv2.convertScaleAbs(c_zero)
 			im_zero = c_zero.astype(np.uint8)
+
+			cv2.imshow("Im_zero", im_zero)
 	
 			#  Get the first diff image - this is raw motion 
 			d1 = cv2.absdiff(f, im_zero)
@@ -175,7 +203,7 @@ def show_video(argv):
 
 		
 		# TODO Add Booleans to show or hide processing images
-		#cv2.imshow("Image", f)
+		cv2.imshow("Threshholded Image", im_bw)
 		#cv2.imshow("Background", im_zero)
 		#cv2.imshow('Background Subtracted', d1)
 		#cv2.imshow("Thresholded", im_bw)
@@ -184,6 +212,12 @@ def show_video(argv):
 		#  Erode and Dilate Image to make blobs clearer.  Adjust erosion and dilation values in pt_config
 		im_er = cv2.erode(im_bw, for_er)
 		im_dl = cv2.dilate(im_er, for_di)
+
+		# mask out ellipitical regions
+		for mask in masks:
+			cv2.ellipse(im_dl, (mask[0], mask[1]), (mask[2], mask[3]), 0, 0, 360, (0,0,0), -1)
+
+		cv2.imshow("Eroded/Dilated Image", im_dl)
 
 		contours, hierarchy = cv2.findContours(im_dl, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 	
@@ -209,7 +243,10 @@ def show_video(argv):
 			tracker.track_blobs(my_blobs, [0,0,width,height], current_frame)
 		
 			for v in tracker.virtual_blobs:
-				cv2.rectangle(f, (int(v.x),int(v.y)), (int(v.x+5), int(v.y+5)), v.color, 2)
+				size = 5
+				if v.got_updated:
+					size = 10
+				cv2.rectangle(f, (int(v.x),int(v.y)), (int(v.x+size), int(v.y+size)), v.color, size)
 		
 		
 		if pt_config.draw_video:
@@ -261,7 +298,10 @@ def show_video(argv):
 			#  draw frame
 			cv2.rectangle(f, (pt_config.FRAME_WIDTH,pt_config.FRAME_WIDTH) ,(width-pt_config.FRAME_WIDTH,height-pt_config.FRAME_WIDTH), (0,0,0),2)
 		
-			#  Current output		
+			#  Current output	(show the current active masks)
+			for mask in masks:
+				cv2.ellipse(f, (mask[0], mask[1]), (mask[2], mask[3]), 0, 0, 360, (0,0,255), -1)
+	
 			cv2.imshow('output',f)
 			cv2.waitKey(delay=1)
 			
@@ -276,6 +316,7 @@ def show_video(argv):
 			#  Write a log of the values used to generate these traces
 			
 			write_traces(tracker.traces, file_name_base)
+			write_log(method, file_name_base)
 
 			
 			#  Save tracker traces
@@ -284,16 +325,17 @@ def show_video(argv):
 			
 			
 	
-			#  Kill switch
-		if current_frame%10==0 and pt_config.draw_video:
-			k = cv2.waitKey(1)
-		else:
-			k = 0
-			
+		#  Kill switch
+		#if current_frame%10==0 and pt_config.draw_video:
+
+		k = 0
+		k = cv2.waitKey(1)
+
+		#print "K is: " , k 
+				
 		if k == 27: # escape to close
+			print "We're QUITING!"
 			break
-	
-	
 
 	cv2.destroyAllWindows()
 	c.release()
