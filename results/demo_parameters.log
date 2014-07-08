@@ -1,6 +1,0 @@
-Method=mog
-FrameWidth=30
-BlobLife=15
-EdgeThreshold=20
-MoveLimit=15
-MatchDistance=20

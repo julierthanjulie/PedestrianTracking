@@ -1,2 +1,5 @@
 # Ignore compiled files
 *.pyc
+
+# Ignore results files
+results/*
