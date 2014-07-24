@@ -40,10 +40,10 @@ class VirtualBlob:
 		"""Update the current state of the blob to the new given position, if it is 
 		not too far away (<DISTANCE_THRESHOLD away) from the previous position"""
 		if abs(x-self.x)<DISTANCE_THRESHOLD and abs(y-self.y)<DISTANCE_THRESHOLD:
-			self.dx = 0.8*self.dx + 0.2*(x - self.x)
-			self.dy = 0.8*self.dy + 0.2*(y - self.y)
-			self.x = 0.7*self.x + 0.3*x
-			self.y = 0.7*self.y + 0.3*y
+			self.dx = 0.65*self.dx + 0.35*(x - self.x)
+			self.dy = 0.65*self.dy + 0.35*(y - self.y)
+			self.x = 0.6*self.x + 0.4*x
+			self.y = 0.6*self.y + 0.4*y
 			self.life = BLOB_LIFE
 			self.got_updated = True
 

@@ -89,6 +89,7 @@
 
 <span class="n">w</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="mi">640</span><span class="p">,</span><span class="mi">360</span>
 <span class="n">border</span><span class="o">=</span><span class="mi">20</span>
+<span class="n">table_x</span><span class="p">,</span> <span class="n">table_y</span> <span class="o">=</span> <span class="mi">315</span><span class="p">,</span> <span class="mi">200</span>
 
 <div class="viewcode-block" id="interactive_trails"><a class="viewcode-back" href="../plot_trails.html#plot_trails.interactive_trails">[docs]</a><span class="k">def</span> <span class="nf">interactive_trails</span><span class="p">(</span><span class="n">traces</span><span class="p">):</span>
 	<span class="n">valid_trails</span> <span class="o">=</span> <span class="p">[]</span>
@@ -132,27 +133,38 @@
 		<span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
 		<span class="n">invalid</span> <span class="o">=</span> <span class="bp">False</span>
 
-		<span class="c"># bad starting point</span>
-		<span class="k">if</span> <span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;</span><span class="n">border</span> <span class="ow">and</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;</span><span class="n">w</span><span class="o">-</span><span class="n">border</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">border</span> <span class="ow">and</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;</span><span class="n">h</span><span class="o">-</span><span class="n">border</span><span class="p">):</span>
-			<span class="n">invalid</span> <span class="o">=</span> <span class="bp">True</span>
+		<span class="c"># # bad starting point</span>
+		<span class="c"># if (pts[0,1]&gt;border and pts[0,1]&lt;w-border) and (pts[0,2]&gt;border and pts[0,2]&lt;h-border):</span>
+		<span class="c"># 	invalid = True</span>
 
-		<span class="c"># bad ending point</span>
-		<span class="k">if</span> <span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;</span><span class="n">border</span> <span class="ow">and</span> <span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;</span><span class="n">w</span><span class="o">-</span><span class="n">border</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">border</span> <span class="ow">and</span> <span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;</span><span class="n">h</span><span class="o">-</span><span class="n">border</span><span class="p">):</span>
-			<span class="n">invalid</span> <span class="o">=</span> <span class="bp">True</span>
+		<span class="c"># # bad ending point</span>
+		<span class="c"># if (pts[-1,1]&gt;border and pts[-1,1]&lt;w-border) and (pts[-1,2]&gt;border and pts[-1,2]&lt;h-border):</span>
+		<span class="c"># 	invalid = True</span>
 		
-		<span class="n">fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">pts</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">pts</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
-		<span class="n">ys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">pts</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
-		<span class="n">rmse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">ys</span><span class="o">-</span><span class="n">pts</span><span class="p">[:,</span><span class="mi">2</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
-		<span class="k">if</span> <span class="n">rmse</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">:</span>
-		 	<span class="n">invalid</span> <span class="o">=</span> <span class="bp">True</span>
+		<span class="c"># fit = np.polyfit(pts[:,1], pts[:,2], 1)</span>
+		<span class="c"># ys = np.polyval(fit, pts[:,1])</span>
+		<span class="c"># rmse = np.sqrt(np.mean((ys-pts[:,2])**2))</span>
+		<span class="c"># if rmse&lt;2:</span>
+		<span class="c">#  	invalid = True</span>
+
+
+		<span class="c"># #  If line is straight, invalid</span>
+		<span class="c"># fit = np.polyfit(pts[:,1], pts[:,2], 1)</span>
+		<span class="c"># ys = np.polyval(fit, pts[:,1])</span>
+		<span class="c"># rmse = np.sqrt(np.mean((ys-pts[:,2])**2))</span>
+		
+		<span class="c"># if rmse&lt;2:</span>
+		<span class="c"># 	invalid = True</span>
+		<span class="c"># if rmse&gt;=30:</span>
+		<span class="c"># 		invalid = True</span>
 	
 		<span class="c"># too short</span>
-		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">200</span><span class="p">:</span>
-			<span class="n">invalid</span> <span class="o">=</span> <span class="bp">True</span>
+		<span class="c"># if len(pts) &lt; 200:</span>
+		<span class="c"># 	invalid = True</span>
 	
-		<span class="n">total_distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-		<span class="k">if</span> <span class="n">total_distance</span><span class="o">&lt;</span><span class="mi">300</span><span class="p">:</span>
-		  		<span class="n">invalid</span> <span class="o">=</span> <span class="bp">True</span>
+		<span class="c"># total_distance = np.sqrt((pts[0,1]-pts[-1,1])**2+(pts[0,2]-pts[-1,2])**2)</span>
+		<span class="c"># if total_distance&lt;300:</span>
+		<span class="c">#   		invalid = True</span>
 
 		<span class="k">if</span> <span class="ow">not</span> <span class="n">invalid</span><span class="p">:</span>
 			<span class="n">pts</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">pts</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="mi">0</span><span class="p">,</span><span class="n">w</span><span class="p">)</span>
@@ -277,8 +289,6 @@
 			<span class="n">valid_trails</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
 	<span class="k">return</span> <span class="n">valid_trails</span>
 </div>
-<span class="n">table_x</span><span class="p">,</span> <span class="n">table_y</span> <span class="o">=</span> <span class="mi">364</span><span class="p">,</span> <span class="mi">282</span>
-
 <div class="viewcode-block" id="get_velocity"><a class="viewcode-back" href="../plot_trails.html#plot_trails.get_velocity">[docs]</a><span class="k">def</span> <span class="nf">get_velocity</span><span class="p">(</span><span class="n">trails</span><span class="p">):</span>
 	<span class="n">velocities</span> <span class="o">=</span> <span class="p">[]</span>
 	<span class="n">smoothing</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">get_window</span><span class="p">(</span><span class="s">&#39;hann&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
@@ -311,7 +321,7 @@
 	<span class="n">pylab</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 </div>
-<div class="viewcode-block" id="draw_trails"><a class="viewcode-back" href="../plot_trails.html#plot_trails.draw_trails">[docs]</a><span class="k">def</span> <span class="nf">draw_trails</span><span class="p">(</span><span class="n">trails</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">speed_range</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">spline</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">table_approach</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">draw_raw</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="draw_trails"><a class="viewcode-back" href="../plot_trails.html#plot_trails.draw_trails">[docs]</a><span class="k">def</span> <span class="nf">draw_trails</span><span class="p">(</span><span class="n">trails</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">speed_range</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">spline</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">table_approach</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">draw_raw</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">draw_a</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 	<span class="n">pylab</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
 
 	<span class="n">num_trails</span> <span class="o">=</span> <span class="mi">0</span>
@@ -351,12 +361,14 @@
 			
 			<span class="k">if</span> <span class="n">table_approach</span><span class="p">:</span>
 				<span class="c">#pylab.plot(x, y, alpha=alpha, c=(0,.3,1), lw=2)</span>
-				<span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">spline_x</span><span class="p">,</span> <span class="n">spline_y</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+				<span class="k">if</span> <span class="n">alpha</span> <span class="o">&gt;</span> <span class="o">.</span><span class="mi">2</span><span class="p">:</span>
+					<span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">spline_x</span><span class="p">,</span> <span class="n">spline_y</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="n">line_width</span><span class="p">)</span>
+					<span class="k">print</span> <span class="n">alpha</span>
 				
 			<span class="k">else</span><span class="p">:</span>
-				<span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">spline_x</span><span class="p">,</span> <span class="n">spline_y</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=.</span><span class="mi">2</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+				<span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">spline_x</span><span class="p">,</span> <span class="n">spline_y</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">draw_a</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="n">line_width</span><span class="p">)</span>
 				<span class="k">if</span> <span class="n">draw_raw</span><span class="p">:</span>
-					<span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+					<span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">draw_a</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">colour</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="n">line_width</span><span class="p">)</span>
 
 			
 	<span class="n">pylab</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">h</span><span class="o">-</span><span class="n">border</span><span class="p">,</span><span class="n">border</span><span class="p">)</span>
@@ -381,98 +393,121 @@
 
 	<span class="n">background</span> <span class="o">=</span> <span class="n">pylab</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">backgroundfile</span><span class="p">)</span>
 
-	<span class="c"># Figure 1:  Chance Participants</span>
+	<span class="c"># CC Data</span>
 	<span class="n">trace</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
 	<span class="n">traces</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-	<span class="n">vtraces</span> <span class="o">=</span> <span class="n">get_velocity</span><span class="p">(</span><span class="n">fake_validate</span><span class="p">(</span><span class="n">traces</span><span class="p">,</span> <span class="n">straight</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 
-	<span class="n">pylab</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-	<span class="n">draw_trails</span><span class="p">(</span><span class="n">vtraces</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">table_approach</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-	
-	<span class="c">#  Figure 2:  Active Participants</span>
-	<span class="n">trace</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
-	<span class="n">traces</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-	<span class="n">ctraces</span> <span class="o">=</span> <span class="n">get_velocity</span><span class="p">(</span><span class="n">fake_validate</span><span class="p">(</span><span class="n">traces</span><span class="p">,</span> <span class="n">straight</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
-	
-	<span class="n">pylab</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-	<span class="n">draw_trails</span><span class="p">(</span><span class="n">ctraces</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">table_approach</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-
-	<span class="c">#  All Non-Interacting Users</span>
-	<span class="n">trace</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
-	<span class="n">traces</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>	
-	<span class="n">valid_trails</span> <span class="o">=</span> <span class="n">get_velocity</span><span class="p">(</span><span class="n">validate_trails</span><span class="p">(</span><span class="n">traces</span><span class="p">))</span>
-
-	<span class="n">pylab</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-	<span class="n">draw_trails</span><span class="p">(</span><span class="n">valid_trails</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">.</span><span class="mi">8</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-
-
-	<span class="c">#  VALIDATION</span>
-	<span class="n">trace</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
-	<span class="n">traces</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>	
 	<span class="n">valid_trails</span> <span class="o">=</span> <span class="n">get_velocity</span><span class="p">(</span><span class="n">min_validate_trails</span><span class="p">(</span><span class="n">traces</span><span class="p">))</span>
 
-	<span class="c">#  </span>
+	<span class="c"># People Approaching the Display</span>
 	<span class="n">pylab</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-	<span class="n">all_trails</span> <span class="o">=</span> <span class="n">draw_trails</span><span class="p">(</span><span class="n">valid_trails</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+	<span class="n">all_trails</span> <span class="o">=</span> <span class="n">draw_trails</span><span class="p">(</span><span class="n">valid_trails</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">table_approach</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+	<span class="c"># All Trails</span>
+	<span class="n">pylab</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+	<span class="n">all_trails</span> <span class="o">=</span> <span class="n">draw_trails</span><span class="p">(</span><span class="n">valid_trails</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">draw_a</span><span class="o">=.</span><span class="mi">2</span><span class="p">)</span>
+
+	<span class="k">print</span> <span class="n">all_trails</span>
+
+	<span class="c"># # Figure 1:  Chance Participants</span>
+	<span class="c"># trace = np.loadtxt(csvfile, comments=&#39;;&#39;, delimiter=&#39;,&#39;)</span>
+	<span class="c"># traces = itertools.groupby(trace, lambda x:x[0])</span>
+	<span class="c"># vtraces = get_velocity(fake_validate(traces, straight=True))</span>
+
+	<span class="c"># pylab.figure()</span>
+	<span class="c"># draw_trails(vtraces, background=background, colour=(1,0,0), table_approach=True)</span>
+	
+	<span class="c"># #  Figure 2:  Active Participants</span>
+	<span class="c"># trace = np.loadtxt(csvfile, comments=&#39;;&#39;, delimiter=&#39;,&#39;)</span>
+	<span class="c"># traces = itertools.groupby(trace, lambda x:x[0])</span>
+	<span class="c"># ctraces = get_velocity(fake_validate(traces, straight=False))</span>
+	
+	<span class="c"># pylab.figure()</span>
+	<span class="c"># draw_trails(ctraces, background=background, colour=(1,0,1), table_approach=True)</span>
+
+	<span class="c"># #  All Non-Interacting Users</span>
+	<span class="c"># trace = np.loadtxt(csvfile, comments=&#39;;&#39;, delimiter=&#39;,&#39;)</span>
+	<span class="c"># traces = itertools.groupby(trace, lambda x:x[0])	</span>
+	<span class="c"># valid_trails = get_velocity(validate_trails(traces))</span>
+
+	<span class="c"># pylab.figure()</span>
+	<span class="c"># draw_trails(valid_trails, background=background, colour=(0, .8, 1))</span>
+
+
+	<span class="c"># #  VALIDATION</span>
+	<span class="c"># trace = np.loadtxt(csvfile, comments=&#39;;&#39;, delimiter=&#39;,&#39;)</span>
+	<span class="c"># traces = itertools.groupby(trace, lambda x:x[0])	</span>
+	<span class="c"># valid_trails = get_velocity(min_validate_trails(traces))</span>
+
+	<span class="c"># #  </span>
+	<span class="c"># pylab.figure()</span>
+	<span class="c"># all_trails = draw_trails(valid_trails, background=background, colour=(1, 0, 0))</span>
 
 	
 
-	<span class="c">#  Interested Avoiders </span>
-	<span class="n">pylab</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-	<span class="n">interested</span> <span class="o">=</span> <span class="n">draw_trails</span><span class="p">(</span><span class="n">valid_trails</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span> <span class="n">speed_range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">],</span> <span class="n">y_range</span><span class="o">=</span><span class="p">[</span><span class="mi">90</span><span class="p">,</span><span class="mi">230</span><span class="p">],</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+	<span class="c"># #  Interested Avoiders </span>
+	<span class="c"># pylab.figure()</span>
+	<span class="c"># interested = draw_trails(valid_trails, background=background, speed_range=[0, 2.2], y_range=[90,230], colour=(0,1,0))</span>
 	
-	<span class="c">#  Disinterested Avoiders</span>
-	<span class="n">pylab</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-	<span class="n">disinterested</span> <span class="o">=</span> <span class="n">draw_trails</span><span class="p">(</span><span class="n">valid_trails</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span> <span class="n">speed_range</span><span class="o">=</span><span class="p">[</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">],</span> <span class="n">y_range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">170</span><span class="p">],</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+	<span class="c"># #  Disinterested Avoiders</span>
+	<span class="c"># pylab.figure()</span>
+	<span class="c"># disinterested = draw_trails(valid_trails, background=background, speed_range=[2.5, 3.2], y_range=[0,170], colour=(0,1,1))</span>
 	
-	<span class="c">#  Disinterested Avoiders</span>
-	<span class="n">pylab</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-	<span class="n">busker</span> <span class="o">=</span> <span class="n">draw_trails</span><span class="p">(</span><span class="n">valid_trails</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">120</span><span class="p">],</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+	<span class="c"># #  Disinterested Avoiders</span>
+	<span class="c"># pylab.figure()</span>
+	<span class="c"># busker = draw_trails(valid_trails, background=background, y_range=[0,120], colour=(1,1,1))</span>
 
 
-	<span class="c">#  Assertive Avoiders</span>
-	<span class="n">pylab</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-	<span class="n">assertive</span> <span class="o">=</span> <span class="n">draw_trails</span><span class="p">(</span><span class="n">valid_trails</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span> <span class="n">speed_range</span><span class="o">=</span><span class="p">[</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">],</span> <span class="n">y_range</span><span class="o">=</span><span class="p">[</span><span class="mi">230</span><span class="p">,</span><span class="mi">400</span><span class="p">],</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+	<span class="c"># #  Assertive Avoiders</span>
+	<span class="c"># pylab.figure()</span>
+	<span class="c"># assertive = draw_trails(valid_trails, background=background, speed_range=[2.5, 3.2], y_range=[230,400], colour=(1,.5,0))</span>
 
-	<span class="c">#  All within the table Avoiders</span>
-	<span class="n">pylab</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-	<span class="n">close_by</span> <span class="o">=</span> <span class="n">draw_trails</span><span class="p">(</span><span class="n">valid_trails</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span> <span class="n">y_range</span><span class="o">=</span><span class="p">[</span><span class="mi">230</span><span class="p">,</span><span class="mi">400</span><span class="p">],</span> <span class="n">colour</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
-
-
-	<span class="k">print</span> <span class="s">&quot;Chance passerby&quot;</span> <span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">vtraces</span><span class="p">)</span>
-	<span class="k">print</span> <span class="s">&quot;Active passerby&quot;</span> <span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctraces</span><span class="p">)</span>
-	<span class="k">print</span> <span class="s">&quot;Valid Trails&quot;</span> <span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_trails</span><span class="p">)</span>
-	<span class="k">print</span> <span class="s">&quot;Red Trails&quot;</span><span class="p">,</span> <span class="n">all_trails</span>
-	<span class="k">print</span> <span class="s">&quot;Green Trails&quot;</span> <span class="p">,</span> <span class="n">interested</span>
-	<span class="k">print</span> <span class="s">&quot;Disinterested&quot;</span> <span class="p">,</span> <span class="n">disinterested</span>
-	<span class="k">print</span> <span class="s">&quot;Busker&quot;</span> <span class="p">,</span> <span class="n">busker</span>
-	<span class="k">print</span> <span class="s">&quot;Assertive&quot;</span> <span class="p">,</span> <span class="n">assertive</span> 
-
-	<span class="n">ys</span> <span class="o">=</span> <span class="p">[]</span>
-	<span class="k">for</span> <span class="n">trail</span> <span class="ow">in</span> <span class="n">valid_trails</span><span class="p">:</span>
-		<span class="n">ys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">trail</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]))</span>
+	<span class="c"># #  All within the table Avoiders</span>
+	<span class="c"># pylab.figure()</span>
+	<span class="c"># close_by = draw_trails(valid_trails, background=background, y_range=[230,400], colour=(1,1,0))</span>
 
 
-	<span class="k">print</span> <span class="s">&quot;Average Y for Non-Interacting&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
-	<span class="k">print</span> <span class="s">&quot;Number Of Trails within Table&quot;</span><span class="p">,</span> <span class="n">close_by</span>
+	<span class="c"># print &quot;Chance passerby&quot; , len(vtraces)</span>
+	<span class="c"># print &quot;Active passerby&quot; , len(ctraces)</span>
+	<span class="c"># print &quot;Valid Trails&quot; , len(valid_trails)</span>
+	<span class="c"># print &quot;Red Trails&quot;, all_trails</span>
+	<span class="c"># print &quot;Green Trails&quot; , interested</span>
+	<span class="c"># print &quot;Disinterested&quot; , disinterested</span>
+	<span class="c"># print &quot;Busker&quot; , busker</span>
+	<span class="c"># print &quot;Assertive&quot; , assertive </span>
+
+	<span class="c"># ys = []</span>
+	<span class="c"># for trail in valid_trails:</span>
+	<span class="c"># 	ys.append(np.mean(trail[:,2]))</span>
+
+
+	<span class="c"># print &quot;Average Y for Non-Interacting&quot;, np.mean(ys)</span>
+	<span class="c"># print &quot;Number Of Trails within Table&quot;, close_by</span>
 	
 	<span class="n">pylab</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </div>
 <span class="k">if</span> <span class="n">__name__</span><span class="o">==</span><span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+
+	<span class="n">background</span> <span class="o">=</span> <span class="s">&#39;/Users/julierwilliamson/Dropbox/ocv_python/Datas/trails_480.png&#39;</span>
+	<span class="n">traces</span> <span class="o">=</span> <span class="s">&#39;/Users/julierwilliamson/Dropbox/ocv_python/Extras/test_traces.csv&#39;</span>
+
 	<span class="k">try</span><span class="p">:</span>
-		<span class="n">opts</span><span class="p">,</span><span class="n">args</span> <span class="o">=</span> <span class="n">getopt</span><span class="o">.</span><span class="n">getopt</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">,</span> <span class="s">&quot;f:b:&quot;</span><span class="p">)</span>
+		<span class="n">opts</span><span class="p">,</span><span class="n">args</span> <span class="o">=</span> <span class="n">getopt</span><span class="o">.</span><span class="n">getopt</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="s">&quot;f:b:&quot;</span><span class="p">)</span>
 	<span class="k">except</span> <span class="n">getopt</span><span class="o">.</span><span class="n">GetoptError</span><span class="p">:</span>
 		<span class="k">print</span> <span class="s">&quot;Getopt Error&quot;</span>
 		<span class="nb">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+	<span class="k">for</span> <span class="n">opt</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">opts</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">opt</span> <span class="o">==</span> <span class="s">&quot;-f&quot;</span><span class="p">:</span>
+			<span class="n">traces</span> <span class="o">=</span> <span class="n">arg</span>
+		<span class="k">elif</span> <span class="n">opt</span> <span class="o">==</span> <span class="s">&quot;-b&quot;</span><span class="p">:</span>
+			<span class="n">background</span> <span class="o">=</span> <span class="n">arg</span>
 
 	<span class="c">#background = &#39;/Users/julierwilliamson/Movies/Pedestrian Data/September 6 Dr Duck/dr_duck_background.png&#39;</span>
 	<span class="c">#traces = &#39;/Users/julierwilliamson/Movies/Pedestrian Data/Validation/validation_4_traces_ext.csv&#39;</span>
 
 	<span class="c"># background = &#39;/Users/julierwilliamson/Movies/Pedestrian Data/September 10 Bubble Pop/bubble_pop_background.png&#39;</span>
 	<span class="c"># traces = &#39;/Users/julierwilliamson/Movies/Pedestrian Data/September 10 Bubble Pop/bubble_pop_traces.csv&#39;</span>
-
-	<span class="n">background</span> <span class="o">=</span> <span class="s">&#39;/Users/julierwilliamson/Dropbox/ocv_python/Datas/trails_480.png&#39;</span>
-	<span class="n">traces</span> <span class="o">=</span> <span class="s">&#39;/Users/julierwilliamson/Dropbox/ocv_python/Extras/test_traces.csv&#39;</span>
 
 	<span class="c"># background = &#39;/Users/julierwilliamson/Movies/Pedestrian Data/September 9 Lost In Waves/lost_in_waves_background.png&#39;</span>
 	<span class="c"># traces = &#39;/Users/julierwilliamson/Movies/Pedestrian Data/September 9 Lost In Waves/lost_in_waves_traces.csv&#39;</span>
@@ -486,11 +521,8 @@
 	<span class="c"># background = &#39;/Users/julierwilliamson/Movies/Pedestrian Data/August 22 LEDS_noninteractive/rainbow_chase_background.png&#39;	</span>
 	<span class="c"># traces = &#39;/Users/julierwilliamson/Movies/Pedestrian Data/August 22 LEDS_noninteractive/rainbow_chase_traces.csv&#39;</span>
 
-	<span class="k">for</span> <span class="n">opt</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">opts</span><span class="p">:</span>
-		<span class="k">if</span> <span class="n">opt</span> <span class="o">==</span> <span class="s">&quot;-f&quot;</span><span class="p">:</span>
-			<span class="n">traces</span> <span class="o">=</span> <span class="n">arg</span>
-		<span class="k">elif</span> <span class="n">opt</span> <span class="o">==</span> <span class="s">&quot;-b&quot;</span><span class="p">:</span>
-			<span class="n">background</span> <span class="o">=</span> <span class="n">arg</span>
+	<span class="k">print</span> <span class="s">&quot;Background: &quot;</span><span class="p">,</span>  <span class="n">background</span>
+	<span class="k">print</span> <span class="s">&quot;Traces:&quot;</span> <span class="p">,</span> <span class="n">traces</span>
 	<span class="n">plot_trails</span><span class="p">(</span><span class="n">traces</span><span class="p">,</span> <span class="n">background</span><span class="p">)</span>
 	<span class="c">#velocity_plot(traces)</span>
 </pre></div>

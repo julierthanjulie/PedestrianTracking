@@ -40,6 +40,7 @@ import scipy.signal, scipy.interpolate
 
 w,h=640,360
 border=20
+table_x, table_y = 315, 200
 
 def interactive_trails(traces):
 	valid_trails = []
@@ -83,27 +84,38 @@ def min_validate_trails(traces):
 		pts = np.array(list(t))
 		invalid = False
 
-		# bad starting point
-		if (pts[0,1]>border and pts[0,1]<w-border) and (pts[0,2]>border and pts[0,2]<h-border):
-			invalid = True
+		# # bad starting point
+		# if (pts[0,1]>border and pts[0,1]<w-border) and (pts[0,2]>border and pts[0,2]<h-border):
+		# 	invalid = True
 
-		# bad ending point
-		if (pts[-1,1]>border and pts[-1,1]<w-border) and (pts[-1,2]>border and pts[-1,2]<h-border):
-			invalid = True
+		# # bad ending point
+		# if (pts[-1,1]>border and pts[-1,1]<w-border) and (pts[-1,2]>border and pts[-1,2]<h-border):
+		# 	invalid = True
 		
-		fit = np.polyfit(pts[:,1], pts[:,2], 1)
-		ys = np.polyval(fit, pts[:,1])
-		rmse = np.sqrt(np.mean((ys-pts[:,2])**2))
-		if rmse<2:
-		 	invalid = True
+		# fit = np.polyfit(pts[:,1], pts[:,2], 1)
+		# ys = np.polyval(fit, pts[:,1])
+		# rmse = np.sqrt(np.mean((ys-pts[:,2])**2))
+		# if rmse<2:
+		#  	invalid = True
+
+
+		# #  If line is straight, invalid
+		# fit = np.polyfit(pts[:,1], pts[:,2], 1)
+		# ys = np.polyval(fit, pts[:,1])
+		# rmse = np.sqrt(np.mean((ys-pts[:,2])**2))
+		
+		# if rmse<2:
+		# 	invalid = True
+		# if rmse>=30:
+		# 		invalid = True
 	
 		# too short
-		if len(pts) < 200:
-			invalid = True
+		# if len(pts) < 200:
+		# 	invalid = True
 	
-		total_distance = np.sqrt((pts[0,1]-pts[-1,1])**2+(pts[0,2]-pts[-1,2])**2)
-		if total_distance<300:
-		  		invalid = True
+		# total_distance = np.sqrt((pts[0,1]-pts[-1,1])**2+(pts[0,2]-pts[-1,2])**2)
+		# if total_distance<300:
+		#   		invalid = True
 
 		if not invalid:
 			pts[:,1] = np.clip(pts[:,1],0,w)
@@ -228,8 +240,6 @@ def test_trails(traces):
 			valid_trails.append(pts)
 	return valid_trails
 
-table_x, table_y = 364, 282
-
 def get_velocity(trails):
 	velocities = []
 	smoothing = scipy.signal.get_window('hann', 30)
@@ -262,7 +272,7 @@ def velocity_plot(csvfile):
 	pylab.show()
 
 
-def draw_trails(trails, background=None, speed_range=None, y_range=None, colour=(0,0,1), spline=True, table_approach=False, draw_raw=False):
+def draw_trails(trails, background=None, speed_range=None, y_range=None, colour=(0,0,1), spline=True, table_approach=False, draw_raw=False, line_width=2, draw_a=1):
 	pylab.subplot(2,1,1)
 
 	num_trails = 0
@@ -302,12 +312,14 @@ def draw_trails(trails, background=None, speed_range=None, y_range=None, colour=
 			
 			if table_approach:
 				#pylab.plot(x, y, alpha=alpha, c=(0,.3,1), lw=2)
-				pylab.plot(spline_x, spline_y, alpha=alpha, c=colour, lw=2)
+				if alpha > .2:
+					pylab.plot(spline_x, spline_y, alpha=alpha, c=colour, lw=line_width)
+					print alpha
 				
 			else:
-				pylab.plot(spline_x, spline_y, alpha=.2, c=colour, lw=2)
+				pylab.plot(spline_x, spline_y, alpha=draw_a, c=colour, lw=line_width)
 				if draw_raw:
-					pylab.plot(x, y, alpha=1, c=(1,0,0), lw=1)
+					pylab.plot(x, y, alpha=draw_a, c=colour, lw=line_width)
 
 			
 	pylab.ylim(h-border,border)
@@ -332,98 +344,121 @@ def plot_trails(csvfile, backgroundfile='trails_480.png'):
 
 	background = pylab.imread(backgroundfile)
 
-	# Figure 1:  Chance Participants
+	# CC Data
 	trace = np.loadtxt(csvfile, comments=';', delimiter=',')
 	traces = itertools.groupby(trace, lambda x:x[0])
-	vtraces = get_velocity(fake_validate(traces, straight=True))
 
-	pylab.figure()
-	draw_trails(vtraces, background=background, colour=(1,0,0), table_approach=True)
-	
-	#  Figure 2:  Active Participants
-	trace = np.loadtxt(csvfile, comments=';', delimiter=',')
-	traces = itertools.groupby(trace, lambda x:x[0])
-	ctraces = get_velocity(fake_validate(traces, straight=False))
-	
-	pylab.figure()
-	draw_trails(ctraces, background=background, colour=(1,0,1), table_approach=True)
-
-	#  All Non-Interacting Users
-	trace = np.loadtxt(csvfile, comments=';', delimiter=',')
-	traces = itertools.groupby(trace, lambda x:x[0])	
-	valid_trails = get_velocity(validate_trails(traces))
-
-	pylab.figure()
-	draw_trails(valid_trails, background=background, colour=(0, .8, 1))
-
-
-	#  VALIDATION
-	trace = np.loadtxt(csvfile, comments=';', delimiter=',')
-	traces = itertools.groupby(trace, lambda x:x[0])	
 	valid_trails = get_velocity(min_validate_trails(traces))
 
-	#  
+	# People Approaching the Display
 	pylab.figure()
-	all_trails = draw_trails(valid_trails, background=background, colour=(1, 0, 0))
+	all_trails = draw_trails(valid_trails, background=background, colour=(1, 0, 0), table_approach=True)
+
+	# All Trails
+	pylab.figure()
+	all_trails = draw_trails(valid_trails, background=background, colour=(1, 1, 0), line_width=2, draw_a=.2)
+
+	print all_trails
+
+	# # Figure 1:  Chance Participants
+	# trace = np.loadtxt(csvfile, comments=';', delimiter=',')
+	# traces = itertools.groupby(trace, lambda x:x[0])
+	# vtraces = get_velocity(fake_validate(traces, straight=True))
+
+	# pylab.figure()
+	# draw_trails(vtraces, background=background, colour=(1,0,0), table_approach=True)
+	
+	# #  Figure 2:  Active Participants
+	# trace = np.loadtxt(csvfile, comments=';', delimiter=',')
+	# traces = itertools.groupby(trace, lambda x:x[0])
+	# ctraces = get_velocity(fake_validate(traces, straight=False))
+	
+	# pylab.figure()
+	# draw_trails(ctraces, background=background, colour=(1,0,1), table_approach=True)
+
+	# #  All Non-Interacting Users
+	# trace = np.loadtxt(csvfile, comments=';', delimiter=',')
+	# traces = itertools.groupby(trace, lambda x:x[0])	
+	# valid_trails = get_velocity(validate_trails(traces))
+
+	# pylab.figure()
+	# draw_trails(valid_trails, background=background, colour=(0, .8, 1))
+
+
+	# #  VALIDATION
+	# trace = np.loadtxt(csvfile, comments=';', delimiter=',')
+	# traces = itertools.groupby(trace, lambda x:x[0])	
+	# valid_trails = get_velocity(min_validate_trails(traces))
+
+	# #  
+	# pylab.figure()
+	# all_trails = draw_trails(valid_trails, background=background, colour=(1, 0, 0))
 
 	
 
-	#  Interested Avoiders 
-	pylab.figure()
-	interested = draw_trails(valid_trails, background=background, speed_range=[0, 2.2], y_range=[90,230], colour=(0,1,0))
+	# #  Interested Avoiders 
+	# pylab.figure()
+	# interested = draw_trails(valid_trails, background=background, speed_range=[0, 2.2], y_range=[90,230], colour=(0,1,0))
 	
-	#  Disinterested Avoiders
-	pylab.figure()
-	disinterested = draw_trails(valid_trails, background=background, speed_range=[2.5, 3.2], y_range=[0,170], colour=(0,1,1))
+	# #  Disinterested Avoiders
+	# pylab.figure()
+	# disinterested = draw_trails(valid_trails, background=background, speed_range=[2.5, 3.2], y_range=[0,170], colour=(0,1,1))
 	
-	#  Disinterested Avoiders
-	pylab.figure()
-	busker = draw_trails(valid_trails, background=background, y_range=[0,120], colour=(1,1,1))
+	# #  Disinterested Avoiders
+	# pylab.figure()
+	# busker = draw_trails(valid_trails, background=background, y_range=[0,120], colour=(1,1,1))
 
 
-	#  Assertive Avoiders
-	pylab.figure()
-	assertive = draw_trails(valid_trails, background=background, speed_range=[2.5, 3.2], y_range=[230,400], colour=(1,.5,0))
+	# #  Assertive Avoiders
+	# pylab.figure()
+	# assertive = draw_trails(valid_trails, background=background, speed_range=[2.5, 3.2], y_range=[230,400], colour=(1,.5,0))
 
-	#  All within the table Avoiders
-	pylab.figure()
-	close_by = draw_trails(valid_trails, background=background, y_range=[230,400], colour=(1,1,0))
-
-
-	print "Chance passerby" , len(vtraces)
-	print "Active passerby" , len(ctraces)
-	print "Valid Trails" , len(valid_trails)
-	print "Red Trails", all_trails
-	print "Green Trails" , interested
-	print "Disinterested" , disinterested
-	print "Busker" , busker
-	print "Assertive" , assertive 
-
-	ys = []
-	for trail in valid_trails:
-		ys.append(np.mean(trail[:,2]))
+	# #  All within the table Avoiders
+	# pylab.figure()
+	# close_by = draw_trails(valid_trails, background=background, y_range=[230,400], colour=(1,1,0))
 
 
-	print "Average Y for Non-Interacting", np.mean(ys)
-	print "Number Of Trails within Table", close_by
+	# print "Chance passerby" , len(vtraces)
+	# print "Active passerby" , len(ctraces)
+	# print "Valid Trails" , len(valid_trails)
+	# print "Red Trails", all_trails
+	# print "Green Trails" , interested
+	# print "Disinterested" , disinterested
+	# print "Busker" , busker
+	# print "Assertive" , assertive 
+
+	# ys = []
+	# for trail in valid_trails:
+	# 	ys.append(np.mean(trail[:,2]))
+
+
+	# print "Average Y for Non-Interacting", np.mean(ys)
+	# print "Number Of Trails within Table", close_by
 	
 	pylab.show()
 
 if __name__=="__main__":
+
+	background = '/Users/julierwilliamson/Dropbox/ocv_python/Datas/trails_480.png'
+	traces = '/Users/julierwilliamson/Dropbox/ocv_python/Extras/test_traces.csv'
+
 	try:
-		opts,args = getopt.getopt(sys.argv, "f:b:")
+		opts,args = getopt.getopt(sys.argv[1:], "f:b:")
 	except getopt.GetoptError:
 		print "Getopt Error"
 		exit(2)
+
+	for opt, arg in opts:
+		if opt == "-f":
+			traces = arg
+		elif opt == "-b":
+			background = arg
 
 	#background = '/Users/julierwilliamson/Movies/Pedestrian Data/September 6 Dr Duck/dr_duck_background.png'
 	#traces = '/Users/julierwilliamson/Movies/Pedestrian Data/Validation/validation_4_traces_ext.csv'
 
 	# background = '/Users/julierwilliamson/Movies/Pedestrian Data/September 10 Bubble Pop/bubble_pop_background.png'
 	# traces = '/Users/julierwilliamson/Movies/Pedestrian Data/September 10 Bubble Pop/bubble_pop_traces.csv'
-
-	background = '/Users/julierwilliamson/Dropbox/ocv_python/Datas/trails_480.png'
-	traces = '/Users/julierwilliamson/Dropbox/ocv_python/Extras/test_traces.csv'
 
 	# background = '/Users/julierwilliamson/Movies/Pedestrian Data/September 9 Lost In Waves/lost_in_waves_background.png'
 	# traces = '/Users/julierwilliamson/Movies/Pedestrian Data/September 9 Lost In Waves/lost_in_waves_traces.csv'
@@ -437,11 +472,8 @@ if __name__=="__main__":
 	# background = '/Users/julierwilliamson/Movies/Pedestrian Data/August 22 LEDS_noninteractive/rainbow_chase_background.png'	
 	# traces = '/Users/julierwilliamson/Movies/Pedestrian Data/August 22 LEDS_noninteractive/rainbow_chase_traces.csv'
 
-	for opt, arg in opts:
-		if opt == "-f":
-			traces = arg
-		elif opt == "-b":
-			background = arg
+	print "Background: ",  background
+	print "Traces:" , traces
 	plot_trails(traces, background)
 	#velocity_plot(traces)
 

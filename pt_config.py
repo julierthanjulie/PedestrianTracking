@@ -37,6 +37,10 @@ mog_di_h = 26
 
 masks = []
 
+# grid settings
+show_grid = False
+grid_spacing = 10
+
 """
 These parameters are used to configure blobs.py
 """
@@ -46,6 +50,5 @@ EDGE_THRESHOLD = 20         # border of image, in pixels, which is regarded as o
 DISTANCE_THRESHOLD = 60     # distance threshold, in pixels. If blob is further than this from previous position, update is ignored
 MOVE_LIMIT = 15              # maximum velocity of the blob. If outside this limit, velocity is disabled
 MATCH_DISTANCE = 20         # maximum distance between blobs in the Hungarian algorithm matching step
-
 
 

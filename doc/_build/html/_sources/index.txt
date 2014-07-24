@@ -12,25 +12,51 @@ Contents:
    :maxdepth: 4
 
    quickstart
-   overview
    videoguideline
    optimising
-   blobs
+   visualisation
+   overview
 
 
 
-These resources are available to analyse and visualise pedestrian traffic using computer vision. These files can generate behavioural maps and statistics about passers-by such as walking speed and direction. 
+.. image::  images/BaselineTrails.png
+   :align:   left
 
-If using this code or the associated materials, please cite this source. 
+..
 
-The original publication is available at: http://juliericowilliamson.com/blog/wp-content/uploads/2014/05/Williamson-small.pdf 
+   These resources are available to analyse and visualise pedestrian traffic using computer vision. These files can generate behavioural maps and statistics about passers-by such as walking speed and direction. 
 
-Williamson, J.R. and Williamson, J. Analysing Pedestrian Traffic Around Public Displays. In the Proceedings of Pervasive Displays 2014. ACM, New York, USA. 
+If using this code or the associated materials, please cite this source: 
 
-Latest Version Available at `GitHub <https://github.com/julierthanjulie/PedestrianTracking>`_, or download the `zip <https://github.com/julierthanjulie/PedestrianTracking/archive/master.zip>`_.
+Williamson, J.R. and Williamson, J. Analysing Pedestrian Traffic Around Public Displays. In the Proceedings of Pervasive Displays 2014. ACM, New York, USA.
+
+The original publication is available at: `Performative Interaction Blog <http://juliericowilliamson.com/blog/wp-content/uploads/2014/05/Williamson-small.pdf>`_ and `The ACM Digital Library <http://dl.acm.org/citation.cfm?id=2611009.2611022&coll=DL&dl=ACM&CFID=517112652&CFTOKEN=16881151>`_. 
+
+All the source code and data is available at: `GitHub <https://github.com/julierthanjulie/PedestrianTracking>`_, or download the `zip <https://github.com/julierthanjulie/PedestrianTracking/archive/master.zip>`_.
+
+This documentation is a work in progress!  If you have specific questions, you can direct them to Julie.Williamson@glasgow.ac.uk.
+
+Dependencies
+--------------
+
+All resources are developed in `Python <https://www.python.org/>`_ (2.7).  Video preparation was completed using `ffmpeg <http://www.ffmpeg.org>`_ (mjpeg codec used, although any format supported by OpenCV is acceptable).
+
+
+Please ensure the following dependencies are installed before using this tool:
+
+* `OpenCV <http://opencv.org>`_
+
+* `Numpy <http://www.numpy.org/>`_
+
+* `PyLab <http://wiki.scipy.org/PyLab>`_
+
+* `SciPy <http://www.scipy.org/>`_
+
+* `Munkres Hungarian Algorithm <https://pypi.python.org/pypi/munkres/>`_
+
 
 Indices and tables
-==================
+-------------------
 
 * :ref:`genindex`
 * :ref:`modindex`

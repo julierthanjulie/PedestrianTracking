@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Guidelines for Pedestrian Tracking Video and ffpmeg &mdash; Pedestrian Tracking 1.2 documentation</title>
+    <title>Guidelines for Pedestrian Tracking Video &mdash; Pedestrian Tracking 1.2 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -52,8 +52,25 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="guidelines-for-pedestrian-tracking-video-and-ffpmeg">
-<h1>Guidelines for Pedestrian Tracking Video and ffpmeg<a class="headerlink" href="#guidelines-for-pedestrian-tracking-video-and-ffpmeg" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="guidelines-for-pedestrian-tracking-video">
+<h1>Guidelines for Pedestrian Tracking Video<a class="headerlink" href="#guidelines-for-pedestrian-tracking-video" title="Permalink to this headline">¶</a></h1>
+<p>This pedestrian tracking software builds on a few assumptions about the video frame a view in order to work properly. Ensure your video complies to these assumptions in order to ensure the best possible tracking.</p>
+<div class="section" id="vantage-point">
+<h2>Vantage Point<a class="headerlink" href="#vantage-point" title="Permalink to this headline">¶</a></h2>
+<p>This software will work best on video that is taken from above.  For example, the sample videos from this distribution are filmed at 3 stories above ground level.  This height minimises the visual overlap between pedestrians and enables higher accuracy tracking.  Ideal video would be taken from a central point directly above the pedestrian traffic to be analysed.</p>
+</div>
+<div class="section" id="entrances-and-exits">
+<h2>Entrances and Exits<a class="headerlink" href="#entrances-and-exits" title="Permalink to this headline">¶</a></h2>
+<p>The current version of this sofware assumes pedestrians will enter and exit within the edge of the video frame.  So, if you video includes a staircase in the centre of the frame, pedestrians entering from this location won&#8217;t be tracked.</p>
+</div>
+<div class="section" id="video-format">
+<h2>Video Format<a class="headerlink" href="#video-format" title="Permalink to this headline">¶</a></h2>
+<p>This software has been tested with ffmpeg encoded videos in avi and mov containers.  However, any supported OpenCV videos will still work with this software, but performance may be very slow for other video encodings.</p>
+</div>
+<div class="section" id="ffmpeg">
+<h2>ffmpeg<a class="headerlink" href="#ffmpeg" title="Permalink to this headline">¶</a></h2>
+<p>All the videos tested with this software have been manipulated using <a class="reference external" href="https://www.ffmpeg.org/">ffmpeg</a>.</p>
+</div>
 </div>
 
 
@@ -62,6 +79,17 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Guidelines for Pedestrian Tracking Video</a><ul>
+<li><a class="reference internal" href="#vantage-point">Vantage Point</a></li>
+<li><a class="reference internal" href="#entrances-and-exits">Entrances and Exits</a></li>
+<li><a class="reference internal" href="#video-format">Video Format</a></li>
+<li><a class="reference internal" href="#ffmpeg">ffmpeg</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="overview.html"
                         title="previous chapter">Overview of Files and Tools</a></p>

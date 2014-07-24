@@ -48,15 +48,16 @@
             
   <h1>Source code for blobs</h1><div class="highlight"><pre>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="c"># import hungarian</span>
 <span class="kn">import</span> <span class="nn">munkres</span>
 
-<span class="c"># Configuration constants</span>
-<span class="n">BLOB_LIFE</span> <span class="o">=</span> <span class="mi">25</span>              <span class="c"># life of blob in frames, if not seen </span>
-<span class="n">EDGE_THRESHOLD</span> <span class="o">=</span> <span class="mi">20</span>         <span class="c"># border of image, in pixels, which is regarded as out-of-frame</span>
-<span class="n">DISTANCE_THRESHOLD</span> <span class="o">=</span> <span class="mi">50</span>     <span class="c"># distance threshold, in pixels. If blob is further than this from previous position, update is ignored</span>
-<span class="n">MOVE_LIMIT</span> <span class="o">=</span> <span class="mi">7</span>              <span class="c"># maximum velocity of the blob. If outside this limit, velocity is disabled</span>
-<span class="n">MATCH_DISTANCE</span> <span class="o">=</span> <span class="mi">50</span>         <span class="c"># maximum distance between blobs in the Hungarian algorithm matching step</span>
+<span class="kn">import</span> <span class="nn">pt_config</span>
+
+<span class="c"># Configuration constants.  Change these in pt_config</span>
+<span class="n">BLOB_LIFE</span> <span class="o">=</span> <span class="n">pt_config</span><span class="o">.</span><span class="n">BLOB_LIFE</span>              <span class="c"># life of blob in frames, if not seen </span>
+<span class="n">EDGE_THRESHOLD</span> <span class="o">=</span> <span class="n">pt_config</span><span class="o">.</span><span class="n">EDGE_THRESHOLD</span>         <span class="c"># border of image, in pixels, which is regarded as out-of-frame</span>
+<span class="n">DISTANCE_THRESHOLD</span> <span class="o">=</span> <span class="n">pt_config</span><span class="o">.</span><span class="n">DISTANCE_THRESHOLD</span>     <span class="c"># distance threshold, in pixels. If blob is further than this from previous position, update is ignored</span>
+<span class="n">MOVE_LIMIT</span> <span class="o">=</span> <span class="n">pt_config</span><span class="o">.</span><span class="n">MOVE_LIMIT</span>          <span class="c"># maximum velocity of the blob. If outside this limit, velocity is disabled</span>
+<span class="n">MATCH_DISTANCE</span> <span class="o">=</span> <span class="n">pt_config</span><span class="o">.</span><span class="n">MATCH_DISTANCE</span>         <span class="c"># maximum distance between blobs in the Hungarian algorithm matching step</span>
 
 
 <span class="n">blob_id</span> <span class="o">=</span> <span class="mi">0</span>
@@ -76,8 +77,8 @@
 		<span class="k">global</span> <span class="n">blob_id</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="mi">4</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">=</span> <span class="mi">4</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="mi">0</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">=</span> <span class="mi">0</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">life</span> <span class="o">=</span> <span class="n">BLOB_LIFE</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">got_updated</span> <span class="o">=</span> <span class="bp">False</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">))</span>
@@ -88,12 +89,13 @@
 		<span class="sd">&quot;&quot;&quot;Update the current state of the blob to the new given position, if it is </span>
 <span class="sd">		not too far away (&lt;DISTANCE_THRESHOLD away) from the previous position&quot;&quot;&quot;</span>
 		<span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">&lt;</span><span class="n">DISTANCE_THRESHOLD</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">y</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">&lt;</span><span class="n">DISTANCE_THRESHOLD</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="mf">0.8</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">+</span> <span class="mf">0.2</span><span class="o">*</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">=</span> <span class="mf">0.8</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">+</span> <span class="mf">0.2</span><span class="o">*</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mf">0.7</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.3</span><span class="o">*</span><span class="n">x</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="mf">0.7</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="mf">0.3</span><span class="o">*</span><span class="n">y</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="mf">0.65</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">+</span> <span class="mf">0.35</span><span class="o">*</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">=</span> <span class="mf">0.65</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">+</span> <span class="mf">0.35</span><span class="o">*</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mf">0.6</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.4</span><span class="o">*</span><span class="n">x</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="mf">0.6</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="mf">0.4</span><span class="o">*</span><span class="n">y</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">life</span> <span class="o">=</span> <span class="n">BLOB_LIFE</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">got_updated</span> <span class="o">=</span> <span class="bp">True</span>
-		</div>
+</div>
 <div class="viewcode-block" id="VirtualBlob.set_location"><a class="viewcode-back" href="../blobs.html#blobs.VirtualBlob.set_location">[docs]</a>	<span class="k">def</span> <span class="nf">set_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Change the position of the blob _without_ any distance filtering or velocity calculation.&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
@@ -252,8 +254,7 @@
 					
 		<span class="c"># clean up the bodies</span>
 		<span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">graveyard</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">virtual_blobs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-			</div></div>
+			<span class="bp">self</span><span class="o">.</span><span class="n">virtual_blobs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">v</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>

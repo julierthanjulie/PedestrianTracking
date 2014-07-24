@@ -46,11 +46,15 @@ def write_log(sub, file_name):
 	log_f.write("EdgeThreshold=" + str(pt_config.EDGE_THRESHOLD) + "\n")
 	log_f.write("MoveLimit=" + str(pt_config.MOVE_LIMIT) + "\n")
 	log_f.write("MatchDistance=" + str(pt_config.MATCH_DISTANCE) + "\n")
-	# log_f.write()
-	# log_f.write()
-	
-
-
+	log_f.write("ErrosionWidth=" + str(pt_config.er_w)+ "\n")
+	log_f.write("ErrosionHeight" + str(pt_config.er_h)+ "\n")
+	log_f.write("DilationWidth" + str(pt_config.di_w)+ "\n")
+	log_f.write("DilationHeight" + str(pt_config.di_h)+ "\n")
+	log_f.write("MOGErrosionWidth=" + str(pt_config.mog_er_w)+ "\n")
+	log_f.write("MOGErrosionHeight" + str(pt_config.mog_er_h)+ "\n")
+	log_f.write("MOGDilationWidth" + str(pt_config.mog_di_w)+ "\n")
+	log_f.write("MOGDilationHeight" + str(pt_config.mog_di_h)+ "\n")
+	log_f.write("Masks" + str(pt_config.masks)+ "\n")
 
 	log_f.close()
 
@@ -92,7 +96,7 @@ def show_video(argv):
 	
 	print video , " " , background , " " , output
 	
-	file_name_base = "results/" + video.split("/")[-1].split(".")[-2]
+	file_name_base = "results/" + video.split("/")[-1].split(".")[-2] + "_" + method
 		
 	c = cv2.VideoCapture(video)
 	
@@ -114,7 +118,7 @@ def show_video(argv):
 	c.set(0, 000.0) 
 	width = int(c.get(3))
 	height = int(c.get(4))
-	fps = int(c.get(5))
+	fps = c.get(5)
 	fourcc = c.get(6)
 	frames = c.get(7)
 	
@@ -302,6 +306,14 @@ def show_video(argv):
 			for mask in masks:
 				cv2.ellipse(f, (mask[0], mask[1]), (mask[2], mask[3]), 0, 0, 360, (0,0,255), -1)
 	
+			if pt_config.show_grid:
+				for i in range(width/pt_config.grid_spacing):
+					cv2.line(f, (i*pt_config.grid_spacing,0), (i*pt_config.grid_spacing,height), (0,0,0))
+
+
+				for j in range(height/pt_config.grid_spacing):
+					cv2.line(f, (0,j*pt_config.grid_spacing), (width,j*pt_config.grid_spacing), (0,0,0))
+										
 			cv2.imshow('output',f)
 			cv2.waitKey(delay=1)
 			

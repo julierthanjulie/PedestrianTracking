@@ -53,26 +53,64 @@
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart for Pedestrian Tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart for Pedestrian Tracking</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#basic-motion-detection">Basic Motion Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#fixed-background-subtraction">Fixed Background Subtraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#mixture-of-gaussians-background-subtraction">Mixture of Gaussians Background Subtraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#results">Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#customisation">Customisation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="videoguideline.html">Guidelines for Pedestrian Tracking Video</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="videoguideline.html#vantage-point">Vantage Point</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videoguideline.html#entrances-and-exits">Entrances and Exits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videoguideline.html#video-format">Video Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videoguideline.html#ffmpeg">ffmpeg</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="optimising.html">Optimising the Pedestrian Tracker for Your Videos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="optimising.html#erosion-and-dilation">Erosion and Dilation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimising.html#blob-parameters">Blob Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimising.html#using-grid-view">Using Grid View</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="visualisation.html">Validating and Visualising Pedestrian Trails</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="visualisation.html#validation">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualisation.html#drawing-modes">Drawing Modes</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview of Files and Tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="videoguideline.html">Guidelines for Pedestrian Tracking Video and ffpmeg</a></li>
-<li class="toctree-l1"><a class="reference internal" href="optimising.html">Optmising the Pedestrian Tracker for Your Videos</a></li>
-<li class="toctree-l1"><a class="reference internal" href="blobs.html">blobs module</a></li>
 </ul>
 </div>
-<p>These resources are available to analyse and visualise pedestrian traffic using computer vision. These files can generate behavioural maps and statistics about passers-by such as walking speed and direction.</p>
-<p>If using this code or the associated materials, please cite this source.</p>
-<p>The original publication is available at: <a class="reference external" href="http://juliericowilliamson.com/blog/wp-content/uploads/2014/05/Williamson-small.pdf">http://juliericowilliamson.com/blog/wp-content/uploads/2014/05/Williamson-small.pdf</a></p>
+<img alt="images/BaselineTrails.png" class="align-left" src="images/BaselineTrails.png" />
+<blockquote>
+<div>These resources are available to analyse and visualise pedestrian traffic using computer vision. These files can generate behavioural maps and statistics about passers-by such as walking speed and direction.</div></blockquote>
+<p>If using this code or the associated materials, please cite this source:</p>
 <p>Williamson, J.R. and Williamson, J. Analysing Pedestrian Traffic Around Public Displays. In the Proceedings of Pervasive Displays 2014. ACM, New York, USA.</p>
-<p>Latest Version Available at <a class="reference external" href="https://github.com/julierthanjulie/PedestrianTracking">GitHub</a>, or download the <a class="reference external" href="https://github.com/julierthanjulie/PedestrianTracking/archive/master.zip">zip</a>.</p>
+<p>The original publication is available at: <a class="reference external" href="http://juliericowilliamson.com/blog/wp-content/uploads/2014/05/Williamson-small.pdf">Performative Interaction Blog</a> and <a class="reference external" href="http://dl.acm.org/citation.cfm?id=2611009.2611022&amp;coll=DL&amp;dl=ACM&amp;CFID=517112652&amp;CFTOKEN=16881151">The ACM Digital Library</a>.</p>
+<p>All the source code and data is available at: <a class="reference external" href="https://github.com/julierthanjulie/PedestrianTracking">GitHub</a>, or download the <a class="reference external" href="https://github.com/julierthanjulie/PedestrianTracking/archive/master.zip">zip</a>.</p>
+<p>This documentation is a work in progress!  If you have specific questions, you can direct them to <a class="reference external" href="mailto:Julie&#46;Williamson&#37;&#52;&#48;glasgow&#46;ac&#46;uk">Julie<span>&#46;</span>Williamson<span>&#64;</span>glasgow<span>&#46;</span>ac<span>&#46;</span>uk</a>.</p>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>All resources are developed in <a class="reference external" href="https://www.python.org/">Python</a> (2.7).  Video preparation was completed using <a class="reference external" href="http://www.ffmpeg.org">ffmpeg</a> (mjpeg codec used, although any format supported by OpenCV is acceptable).</p>
+<p>Please ensure the following dependencies are installed before using this tool:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://opencv.org">OpenCV</a></li>
+<li><a class="reference external" href="http://www.numpy.org/">Numpy</a></li>
+<li><a class="reference external" href="http://wiki.scipy.org/PyLab">PyLab</a></li>
+<li><a class="reference external" href="http://www.scipy.org/">SciPy</a></li>
+<li><a class="reference external" href="https://pypi.python.org/pypi/munkres/">Munkres Hungarian Algorithm</a></li>
+</ul>
 </div>
 <div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
 <li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
 <li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
 </ul>
+</div>
 </div>
 
 
@@ -83,8 +121,11 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Welcome to Pedestrian Tracking&#8217;s documentation!</a></li>
+<li><a class="reference internal" href="#">Welcome to Pedestrian Tracking&#8217;s documentation!</a><ul>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
 </ul>
 
   <h4>Next topic</h4>

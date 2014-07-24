@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Pedestrian Tracking 1.2 documentation" href="index.html" />
-    <link rel="next" title="Overview of Files and Tools" href="overview.html" />
+    <link rel="next" title="Guidelines for Pedestrian Tracking Video" href="videoguideline.html" />
     <link rel="prev" title="Welcome to Pedestrian Tracking’s documentation!" href="index.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="overview.html" title="Overview of Files and Tools"
+          <a href="videoguideline.html" title="Guidelines for Pedestrian Tracking Video"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to Pedestrian Tracking’s documentation!"
@@ -54,23 +54,58 @@
             
   <div class="section" id="quickstart-for-pedestrian-tracking">
 <h1>Quickstart for Pedestrian Tracking<a class="headerlink" href="#quickstart-for-pedestrian-tracking" title="Permalink to this headline">¶</a></h1>
-<p>The pedestrian tracker include a sample video that demonstrates the pedestrian tracker in action.  To see a demo of the pedestrian tracker, and test your local environment has all the required dependencies with:</p>
+<p>The pedestrian tracker includes a sample video that demonstrates the pedestrian tracker for three different detection modes.  If your environment has all the required dependencies, you should be able to run the following demonstration modes.</p>
+<div class="section" id="basic-motion-detection">
+<h2>Basic Motion Detection<a class="headerlink" href="#basic-motion-detection" title="Permalink to this headline">¶</a></h2>
+<p>This method used an accumulated image to generate an inferred background.  While this technique is more resilient to changes in lighting, objects that remain stationary are lost during tracking.  If no command line arguments are given, this is the default usage.:</p>
 <div class="highlight-python"><div class="highlight"><pre>python pedestrian_tracking.py
 </pre></div>
 </div>
-<div class="figure align-center">
-<img alt="images/demo.png" src="images/demo.png" />
-<p class="caption">The sample video included in this project will run if your local environment is properly setup with all the dependencies.  The video preview will visualise pedestrian traffic as the processing is completed.</p>
 </div>
-<p>All resources are developed in <a class="reference external" href="https://www.python.org/">Python</a> (2.7).  Video preparation was completed using <a class="reference external" href="http://www.ffmpeg.org">ffmpeg</a> (mjpeg codec used, although any format supported by OpenCV is acceptable).</p>
-<p>Please ensure the following dependencies are installed before using this tool:</p>
-<ul class="simple">
-<li><a class="reference external" href="http://opencv.org">OpenCV</a></li>
-<li>&lt;a href=&#8221;<a class="reference external" href="http://www.numpy.org/">http://www.numpy.org/</a>&#8220;&gt;Numpy&lt;/a&gt;&lt;/li&gt;</li>
-<li>&lt;a href=&#8221;<a class="reference external" href="http://wiki.scipy.org/PyLab">http://wiki.scipy.org/PyLab</a>&#8220;&gt;PyLab&lt;/a&gt;&lt;/li&gt;</li>
-<li>&lt;a href=&#8221;<a class="reference external" href="http://www.scipy.org/">http://www.scipy.org/</a>&#8220;&gt;SciPy&lt;/a&gt;&lt;/li&gt;</li>
-<li>&lt;a href=&#8221;<a class="reference external" href="https://pypi.python.org/pypi/hungarian/0.2.3">https://pypi.python.org/pypi/hungarian/0.2.3</a>&#8220;&gt;Hungarian Algorithm for Python&lt;/a&gt;</li>
-</ul>
+<div class="section" id="fixed-background-subtraction">
+<h2>Fixed Background Subtraction<a class="headerlink" href="#fixed-background-subtraction" title="Permalink to this headline">¶</a></h2>
+<p>This method requires a static background image and is not suitable for changing lighting conditions.  To use this method, you must provide a background image using -b in the command line arguments.  You can pull this directly from your video using the <a class="reference internal" href="background_browser.html"><em>background_browser module</em></a>.</p>
+<div class="highlight-python"><div class="highlight"><pre>python pedestrian_tracking.py -m &quot;ext&quot; -b demo_0.png
+</pre></div>
+</div>
+</div>
+<div class="section" id="mixture-of-gaussians-background-subtraction">
+<h2>Mixture of Gaussians Background Subtraction<a class="headerlink" href="#mixture-of-gaussians-background-subtraction" title="Permalink to this headline">¶</a></h2>
+<p>This method uses a more robust background inference technique and provides the best when Fixed Background Subtraction is not suitable.:</p>
+<div class="highlight-python"><div class="highlight"><pre>python pedestrian_tracking.py -m &quot;mog&quot;
+</pre></div>
+</div>
+<div class="figure align-left">
+<img alt="images/demo.png" src="images/demo.png" />
+<p class="caption">The sample video included in this project will run if your local environment is properly setup with all the dependencies.  The video preview will give real time feedback about pedestrian traffic as the processing is completed.  This will show the raw output of the pedestrian tracker, which should then be validated before final visualisations are generated using <a class="reference internal" href="plot_trails.html"><em>plot_trails module</em></a>.</p>
+</div>
+</div>
+<div class="section" id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-v <var>video</var></span></kbd></td>
+<td>A video file to generate pedestrian trails. This code is optimised for MJPEG videos in an AVI container or MOV.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-b <var>image</var></span></kbd></td>
+<td>A background image (matching the size of the video) that must be provided if using Fixed Background Subtraction.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-m <var>mode</var></span></kbd></td>
+<td>Set the background substraction mode.  Use acc for basic motion detection, ext for fixed background subtraction, and mog for mixture of gaussians background subtraction.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="results">
+<h2>Results<a class="headerlink" href="#results" title="Permalink to this headline">¶</a></h2>
+<p>Upon completion, the python code will write all of the pedestrian traces to a CSV file.  The file will be named after the video and saved in the results folder.  The code will also generate a .log file describing the parameters used to generate the pedestrian trails and a .png file showing the raw output of the pedestrian trails.</p>
+</div>
+<div class="section" id="customisation">
+<h2>Customisation<a class="headerlink" href="#customisation" title="Permalink to this headline">¶</a></h2>
+<p>Once your development environment is fully setup and the demos can be run successfully, you are ready to run the pedestrian tracker on your own video.  Ensure your video is suitable for pedestrian tracking with our <a class="reference internal" href="videoguideline.html"><em>Guidelines for Pedestrian Tracking Video</em></a> and customise the tracking parameters for your video in <a class="reference internal" href="optimising.html"><em>Optimising the Pedestrian Tracker for Your Videos</em></a>.</p>
+</div>
 </div>
 
 
@@ -79,12 +114,25 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Quickstart for Pedestrian Tracking</a><ul>
+<li><a class="reference internal" href="#basic-motion-detection">Basic Motion Detection</a></li>
+<li><a class="reference internal" href="#fixed-background-subtraction">Fixed Background Subtraction</a></li>
+<li><a class="reference internal" href="#mixture-of-gaussians-background-subtraction">Mixture of Gaussians Background Subtraction</a></li>
+<li><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li><a class="reference internal" href="#results">Results</a></li>
+<li><a class="reference internal" href="#customisation">Customisation</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="index.html"
                         title="previous chapter">Welcome to Pedestrian Tracking&#8217;s documentation!</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="overview.html"
-                        title="next chapter">Overview of Files and Tools</a></p>
+  <p class="topless"><a href="videoguideline.html"
+                        title="next chapter">Guidelines for Pedestrian Tracking Video</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/quickstart.txt"
@@ -117,7 +165,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="overview.html" title="Overview of Files and Tools"
+          <a href="videoguideline.html" title="Guidelines for Pedestrian Tracking Video"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to Pedestrian Tracking’s documentation!"

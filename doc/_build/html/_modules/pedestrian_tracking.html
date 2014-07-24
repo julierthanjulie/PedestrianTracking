@@ -67,13 +67,8 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
-<span class="c">#  The frame is used to detect pedestrians entering the frame of view, and to remove noise.</span>
-<span class="c">#  Blobs detected within the frame are treated differently than those outside the frame.</span>
-<span class="n">FRAME_WIDTH</span> <span class="o">=</span> <span class="mi">30</span>
-
-
-<span class="c">#  Show a video preview during vision processing</span>
-<span class="n">draw_video</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="c">#  Adjust all aspects of the configuration for this module at pt_config</span>
+<span class="kn">import</span> <span class="nn">pt_config</span>
 
 <span class="c">#  Outputs all traces from this script as a CSV file</span>
 <div class="viewcode-block" id="write_traces"><a class="viewcode-back" href="../pedestrian_tracking.html#pedestrian_tracking.write_traces">[docs]</a><span class="k">def</span> <span class="nf">write_traces</span><span class="p">(</span><span class="n">traces</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
@@ -87,6 +82,30 @@
 			<span class="n">thing</span> <span class="o">=</span> <span class="s">&quot;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">set</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">set</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">set</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot;;</span><span class="se">\n</span><span class="s">&quot;</span>
 			<span class="n">trace_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">thing</span><span class="p">)</span>
 	<span class="n">trace_f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="write_log"><a class="viewcode-back" href="../pedestrian_tracking.html#pedestrian_tracking.write_log">[docs]</a><span class="k">def</span> <span class="nf">write_log</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	This function writes a log of the parameters the generated the traces file.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">log_f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span> <span class="o">+</span> <span class="s">&quot;_parameters.log&quot;</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;Method=&quot;</span> <span class="o">+</span> <span class="n">sub</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;FrameWidth=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">FRAME_WIDTH</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;BlobLife=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">BLOB_LIFE</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;EdgeThreshold=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">EDGE_THRESHOLD</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;MoveLimit=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">MOVE_LIMIT</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;MatchDistance=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">MATCH_DISTANCE</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;ErrosionWidth=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">er_w</span><span class="p">)</span><span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;ErrosionHeight&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">er_h</span><span class="p">)</span><span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;DilationWidth&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">di_w</span><span class="p">)</span><span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;DilationHeight&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">di_h</span><span class="p">)</span><span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;MOGErrosionWidth=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">mog_er_w</span><span class="p">)</span><span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;MOGErrosionHeight&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">mog_er_h</span><span class="p">)</span><span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;MOGDilationWidth&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">mog_di_w</span><span class="p">)</span><span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;MOGDilationHeight&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">mog_di_h</span><span class="p">)</span><span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+	<span class="n">log_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;Masks&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">masks</span><span class="p">)</span><span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+
+	<span class="n">log_f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
  
@@ -97,12 +116,9 @@
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="n">tracker</span> <span class="o">=</span> <span class="n">blobs</span><span class="o">.</span><span class="n">BlobTracker</span><span class="p">()</span>
 
-	<span class="c">#  Testing MOG</span>
-	<span class="n">bgs_mog</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">BackgroundSubtractorMOG</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mf">0.9</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
-	
-
+	<span class="c">#  Default Options for Running in Demo Mode</span>
 	<span class="n">video</span> <span class="o">=</span> <span class="s">&quot;demo.avi&quot;</span>
-	<span class="n">background</span> <span class="o">=</span> <span class="s">&quot;/Users/julierwilliamson/Dropbox/ocv_python/alpha001.png&quot;</span>
+	<span class="n">background</span> <span class="o">=</span> <span class="s">&quot;demo_0.png&quot;</span>
 	<span class="n">output</span> <span class="o">=</span>  <span class="s">&quot;blob&quot;</span>
 	<span class="n">method</span> <span class="o">=</span> <span class="s">&quot;acc&quot;</span>
 	
@@ -125,10 +141,11 @@
 			<span class="n">method</span> <span class="o">=</span> <span class="n">arg</span>
 			
 			
+	<span class="n">masks</span> <span class="o">=</span> <span class="n">pt_config</span><span class="o">.</span><span class="n">masks</span>
 	
 	<span class="k">print</span> <span class="n">video</span> <span class="p">,</span> <span class="s">&quot; &quot;</span> <span class="p">,</span> <span class="n">background</span> <span class="p">,</span> <span class="s">&quot; &quot;</span> <span class="p">,</span> <span class="n">output</span>
 	
-	<span class="n">file_name_base</span> <span class="o">=</span> <span class="s">&quot;results/&quot;</span> <span class="o">+</span> <span class="n">video</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+	<span class="n">file_name_base</span> <span class="o">=</span> <span class="s">&quot;results/&quot;</span> <span class="o">+</span> <span class="n">video</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;_&quot;</span> <span class="o">+</span> <span class="n">method</span>
 		
 	<span class="n">c</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
 	
@@ -150,14 +167,13 @@
 	<span class="n">c</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">000.0</span><span class="p">)</span> 
 	<span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
 	<span class="n">height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
-	<span class="n">fps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+	<span class="n">fps</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 	<span class="n">fourcc</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
 	<span class="n">frames</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
 	
+	<span class="c">#  Print out some initial information about the video to be processed.</span>
 	<span class="k">print</span> <span class="n">fourcc</span><span class="p">,</span> <span class="n">fps</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">frames</span>
-	
-	<span class="c">#writer = cv2.VideoWriter(output, 0,  fps, (width, height)) </span>
-	
+		
 	<span class="c"># Celtic Connection Errosion/Dilation</span>
 	<span class="c"># for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,20))</span>
 	<span class="c"># for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,40))</span>
@@ -166,9 +182,22 @@
 	<span class="c"># for_er = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))</span>
 	<span class="c"># for_di = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(10,20))</span>
 
-	<span class="c"># Default Erosion.Dilation</span>
-	<span class="n">for_er</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_ELLIPSE</span><span class="p">,(</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>	
-	<span class="n">for_di</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_ELLIPSE</span><span class="p">,(</span><span class="mi">15</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
+	
+	<span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s">&quot;mog&quot;</span><span class="p">:</span>
+		<span class="c">#  Setup MOG element for generated background subtractions</span>
+		<span class="c"># bgs_mog = cv2.BackgroundSubtractorMOG(4,3,.99,5)</span>
+		<span class="n">bgs_mog</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">BackgroundSubtractorMOG2</span><span class="p">()</span>
+		
+
+
+		<span class="c"># MOG Erosion.Dilation</span>
+		<span class="n">for_er</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_ELLIPSE</span><span class="p">,(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">mog_er_w</span><span class="p">,</span> <span class="n">pt_config</span><span class="o">.</span><span class="n">mog_er_h</span><span class="p">))</span>	
+		<span class="n">for_di</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_ELLIPSE</span><span class="p">,(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">mog_di_w</span><span class="p">,</span> <span class="n">pt_config</span><span class="o">.</span><span class="n">mog_di_h</span><span class="p">))</span>
+
+	<span class="k">else</span><span class="p">:</span>
+		<span class="c"># ACC or EXT Erosion and Dilation</span>
+		<span class="n">for_er</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_ELLIPSE</span><span class="p">,(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">er_w</span><span class="p">,</span> <span class="n">pt_config</span><span class="o">.</span><span class="n">er_h</span><span class="p">))</span>	
+		<span class="n">for_di</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_ELLIPSE</span><span class="p">,(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">di_w</span><span class="p">,</span> <span class="n">pt_config</span><span class="o">.</span><span class="n">di_h</span><span class="p">))</span>
 
 
 	<span class="n">orange</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">(((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">)),</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span><span class="o">*</span><span class="mi">128</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">height</span><span class="p">,</span><span class="n">width</span><span class="p">))</span><span class="o">*</span><span class="mi">255</span><span class="p">)))</span>
@@ -177,66 +206,71 @@
 	<span class="n">trails</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 	<span class="n">start_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span>	
 	<span class="n">current_frame</span> <span class="o">=</span> <span class="mi">0</span>
+	
 	<span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
 		
 		<span class="c">#s = raw_input()</span>
 		
+		<span class="c">#  Get the next frame of the video</span>
 		<span class="n">_</span><span class="p">,</span><span class="n">f</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+		<span class="c">#  Do some caculations to determin and print out progress.</span>
 		<span class="n">current_frame</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-		<span class="c">#print current_frame</span>
-		<span class="c">#print &quot;Percentage: &quot; , int((current_frame/frames)*100) , &quot; Traces: &quot; , len(tracker.traces)</span>
 		<span class="n">t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">clock</span><span class="p">()</span><span class="o">-</span><span class="n">start_t</span>
 		<span class="n">remainder</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">current_frame</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
 		<span class="n">current</span> <span class="o">=</span> <span class="n">current_frame</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
 		<span class="n">remaining</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(((</span><span class="n">t</span><span class="o">/</span><span class="n">current</span><span class="p">)</span><span class="o">*</span><span class="n">remainder</span><span class="p">)</span> <span class="o">/</span> <span class="mf">60.0</span><span class="p">)</span>
 		
-		<span class="k">if</span> <span class="n">current_frame</span><span class="o">%</span><span class="mi">20</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+		<span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">current_frame</span><span class="p">)</span><span class="o">%</span><span class="mi">25</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
 			<span class="k">print</span> <span class="s">&quot;Percentage: &quot;</span> <span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">current_frame</span><span class="o">/</span><span class="n">frames</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span> <span class="p">,</span> <span class="s">&quot; Traces: &quot;</span> <span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tracker</span><span class="o">.</span><span class="n">traces</span><span class="p">),</span> <span class="s">&quot;Time left (m): &quot;</span><span class="p">,</span> <span class="n">remaining</span>
 		
+
+		<span class="k">if</span> <span class="n">method</span> <span class="o">==</span><span class="s">&quot;mog&quot;</span><span class="p">:</span>
+			<span class="n">grey_image</span> <span class="o">=</span> <span class="n">bgs_mog</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+			<span class="c">#  Turn this into a black and white image (white is movement)</span>
+			<span class="n">thresh</span><span class="p">,</span> <span class="n">im_bw</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="n">grey_image</span><span class="p">,</span> <span class="mi">225</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_BINARY</span><span class="p">)</span>
+
+		<span class="c">#  If using the accumulated image (basic motion detection) infer the background image for this frame</span>
+		<span class="k">else</span><span class="p">:</span>
+
+			<span class="k">if</span> <span class="n">method</span> <span class="o">==</span><span class="s">&quot;acc&quot;</span><span class="p">:</span>
+				<span class="n">cv2</span><span class="o">.</span><span class="n">accumulateWeighted</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">c_zero</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+
+			<span class="c">#im_zero = cv2.convertScaleAbs(c_zero)</span>
+			<span class="n">im_zero</span> <span class="o">=</span> <span class="n">c_zero</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+			<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s">&quot;Im_zero&quot;</span><span class="p">,</span> <span class="n">im_zero</span><span class="p">)</span>
+	
+			<span class="c">#  Get the first diff image - this is raw motion </span>
+			<span class="n">d1</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">absdiff</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">im_zero</span><span class="p">)</span>
+	
+			<span class="c">#  Convert this to greyscale</span>
+			<span class="n">gray_image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
 		
 		
-		<span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s">&quot;acc&quot;</span><span class="p">:</span>
-			<span class="n">cv2</span><span class="o">.</span><span class="n">accumulateWeighted</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">c_zero</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-			
-		
-		<span class="n">fgmask</span> <span class="o">=</span> <span class="n">bgs_mog</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+			<span class="c">#  ksize aperture linear size, must be odd</span>
+			<span class="c">#gray_smooth = cv2.medianBlur(gray_image, 5)</span>
+
+			<span class="c">#  Turn this into a black and white image (white is movement)</span>
+			<span class="n">thresh</span><span class="p">,</span> <span class="n">im_bw</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="n">gray_image</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_BINARY</span><span class="p">)</span>
 
 		
-		<span class="c">#im_zero = cv2.convertScaleAbs(c_zero)</span>
-		<span class="n">im_zero</span> <span class="o">=</span> <span class="n">c_zero</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
-	
-		<span class="c">#  Get the first diff image - this is raw motion </span>
-		<span class="n">d1</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">absdiff</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">im_zero</span><span class="p">)</span>
-	
-		<span class="c">#  Convert this to greyscale</span>
-		<span class="n">gray_image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
-		
-		
-		<span class="c">#  ksize aperture linear size, must be odd</span>
-		<span class="c">#gray_smooth = cv2.medianBlur(gray_image, 5)</span>
-
-		<span class="c">#  Turn this into a black and white image (white is movement)</span>
-		<span class="n">thresh</span><span class="p">,</span> <span class="n">im_bw</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="n">gray_image</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_BINARY</span><span class="p">)</span>
-		
-		<span class="c">#bw_smooth = cv2.medianBlur(im_bw, 1)</span>
-		
-		<span class="c">#im_bw_smooth = cv2.medianBlue(im_bw, (5,5), 0)</span>
-		
-		<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s">&quot;MOG Subtracted&quot;</span><span class="p">,</span> <span class="n">fgmask</span><span class="p">)</span>
-		<span class="c">#cv2.imshow(&quot;Image&quot;, f)</span>
+		<span class="c"># TODO Add Booleans to show or hide processing images</span>
+		<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s">&quot;Threshholded Image&quot;</span><span class="p">,</span> <span class="n">im_bw</span><span class="p">)</span>
 		<span class="c">#cv2.imshow(&quot;Background&quot;, im_zero)</span>
 		<span class="c">#cv2.imshow(&#39;Background Subtracted&#39;, d1)</span>
-		<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s">&quot;Thresholded&quot;</span><span class="p">,</span> <span class="n">im_bw</span><span class="p">)</span>
+		<span class="c">#cv2.imshow(&quot;Thresholded&quot;, im_bw)</span>
 		
 		
-		
-		<span class="c"># For using Motion Detection/Accumulated Image</span>
-		<span class="c"># im_er = cv2.erode(im_bw, for_er)</span>
-		<span class="c"># im_dl = cv2.dilate(im_er, for_di)</span>
-
-		<span class="c"># For using MOG algorithm background subtraction</span>
+		<span class="c">#  Erode and Dilate Image to make blobs clearer.  Adjust erosion and dilation values in pt_config</span>
 		<span class="n">im_er</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">erode</span><span class="p">(</span><span class="n">im_bw</span><span class="p">,</span> <span class="n">for_er</span><span class="p">)</span>
 		<span class="n">im_dl</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">im_er</span><span class="p">,</span> <span class="n">for_di</span><span class="p">)</span>
+
+		<span class="c"># mask out ellipitical regions</span>
+		<span class="k">for</span> <span class="n">mask</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">:</span>
+			<span class="n">cv2</span><span class="o">.</span><span class="n">ellipse</span><span class="p">(</span><span class="n">im_dl</span><span class="p">,</span> <span class="p">(</span><span class="n">mask</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mask</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="n">mask</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">mask</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">360</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+		<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s">&quot;Eroded/Dilated Image&quot;</span><span class="p">,</span> <span class="n">im_dl</span><span class="p">)</span>
 
 		<span class="n">contours</span><span class="p">,</span> <span class="n">hierarchy</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findContours</span><span class="p">(</span><span class="n">im_dl</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">RETR_EXTERNAL</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">CHAIN_APPROX_SIMPLE</span><span class="p">)</span>
 	
@@ -262,14 +296,13 @@
 			<span class="n">tracker</span><span class="o">.</span><span class="n">track_blobs</span><span class="p">(</span><span class="n">my_blobs</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">width</span><span class="p">,</span><span class="n">height</span><span class="p">],</span> <span class="n">current_frame</span><span class="p">)</span>
 		
 			<span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tracker</span><span class="o">.</span><span class="n">virtual_blobs</span><span class="p">:</span>
-				<span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">)),</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="o">+</span><span class="mi">5</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="o">+</span><span class="mi">5</span><span class="p">)),</span> <span class="n">v</span><span class="o">.</span><span class="n">color</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+				<span class="n">size</span> <span class="o">=</span> <span class="mi">5</span>
+				<span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">got_updated</span><span class="p">:</span>
+					<span class="n">size</span> <span class="o">=</span> <span class="mi">10</span>
+				<span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">)),</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="o">+</span><span class="n">size</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="o">+</span><span class="n">size</span><span class="p">)),</span> <span class="n">v</span><span class="o">.</span><span class="n">color</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
 		
-		<span class="c">#  Get blank image setup</span>
 		
-		
-			
-		
-		<span class="k">if</span> <span class="n">draw_video</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">pt_config</span><span class="o">.</span><span class="n">draw_video</span><span class="p">:</span>
 			
 			<span class="c">#total_trails = np.zeros((height,width,3), np.uint8)</span>
 			<span class="c">#alpha_trails = np.zeros((height,width,3), np.float64)</span>
@@ -316,9 +349,20 @@
 			<span class="n">cv2</span><span class="o">.</span><span class="n">drawContours</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">contours</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span> 
 		
 			<span class="c">#  draw frame</span>
-			<span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">FRAME_WIDTH</span><span class="p">,</span><span class="n">FRAME_WIDTH</span><span class="p">)</span> <span class="p">,(</span><span class="n">width</span><span class="o">-</span><span class="n">FRAME_WIDTH</span><span class="p">,</span><span class="n">height</span><span class="o">-</span><span class="n">FRAME_WIDTH</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>
+			<span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">pt_config</span><span class="o">.</span><span class="n">FRAME_WIDTH</span><span class="p">,</span><span class="n">pt_config</span><span class="o">.</span><span class="n">FRAME_WIDTH</span><span class="p">)</span> <span class="p">,(</span><span class="n">width</span><span class="o">-</span><span class="n">pt_config</span><span class="o">.</span><span class="n">FRAME_WIDTH</span><span class="p">,</span><span class="n">height</span><span class="o">-</span><span class="n">pt_config</span><span class="o">.</span><span class="n">FRAME_WIDTH</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>
 		
-			<span class="c">#  Current output		</span>
+			<span class="c">#  Current output	(show the current active masks)</span>
+			<span class="k">for</span> <span class="n">mask</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">:</span>
+				<span class="n">cv2</span><span class="o">.</span><span class="n">ellipse</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">mask</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mask</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="n">mask</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">mask</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">360</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+	
+			<span class="k">if</span> <span class="n">pt_config</span><span class="o">.</span><span class="n">show_grid</span><span class="p">:</span>
+				<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">width</span><span class="o">/</span><span class="n">pt_config</span><span class="o">.</span><span class="n">grid_spacing</span><span class="p">):</span>
+					<span class="n">cv2</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="o">*</span><span class="n">pt_config</span><span class="o">.</span><span class="n">grid_spacing</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">i</span><span class="o">*</span><span class="n">pt_config</span><span class="o">.</span><span class="n">grid_spacing</span><span class="p">,</span><span class="n">height</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+
+
+				<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">height</span><span class="o">/</span><span class="n">pt_config</span><span class="o">.</span><span class="n">grid_spacing</span><span class="p">):</span>
+					<span class="n">cv2</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">j</span><span class="o">*</span><span class="n">pt_config</span><span class="o">.</span><span class="n">grid_spacing</span><span class="p">),</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span><span class="n">j</span><span class="o">*</span><span class="n">pt_config</span><span class="o">.</span><span class="n">grid_spacing</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+										
 			<span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s">&#39;output&#39;</span><span class="p">,</span><span class="n">f</span><span class="p">)</span>
 			<span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="n">delay</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 			
@@ -328,8 +372,12 @@
 			
 			<span class="c">#  Save the pic</span>
 			<span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">file_name_base</span> <span class="o">+</span> <span class="s">&quot;_last_frame.png&quot;</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+			<span class="c">#  TODO </span>
+			<span class="c">#  Write a log of the values used to generate these traces</span>
 			
 			<span class="n">write_traces</span><span class="p">(</span><span class="n">tracker</span><span class="o">.</span><span class="n">traces</span><span class="p">,</span> <span class="n">file_name_base</span><span class="p">)</span>
+			<span class="n">write_log</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">file_name_base</span><span class="p">)</span>
 
 			
 			<span class="c">#  Save tracker traces</span>
@@ -338,16 +386,17 @@
 			
 			
 	
-			<span class="c">#  Kill switch</span>
-		<span class="k">if</span> <span class="n">current_frame</span><span class="o">%</span><span class="mi">10</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">draw_video</span><span class="p">:</span>
-			<span class="n">k</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-		<span class="k">else</span><span class="p">:</span>
-			<span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
-			
+		<span class="c">#  Kill switch</span>
+		<span class="c">#if current_frame%10==0 and pt_config.draw_video:</span>
+
+		<span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+		<span class="n">k</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+		<span class="c">#print &quot;K is: &quot; , k </span>
+				
 		<span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">27</span><span class="p">:</span> <span class="c"># escape to close</span>
+			<span class="k">print</span> <span class="s">&quot;We&#39;re QUITING!&quot;</span>
 			<span class="k">break</span>
-	
-	
 
 	<span class="n">cv2</span><span class="o">.</span><span class="n">destroyAllWindows</span><span class="p">()</span>
 	<span class="n">c</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
